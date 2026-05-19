@@ -23,6 +23,16 @@ pub(crate) struct BoundAttentionBlock {
     pub attn_sinks: BoundTensor,
     pub attn_output_a: BoundTensor,
     pub attn_output_b: BoundTensor,
+        pub attn_compressor_kv: Option<BoundTensor>,
+    pub attn_compressor_gate: Option<BoundTensor>,
+    pub attn_compressor_ape: Option<BoundTensor>,
+    pub attn_compressor_norm: Option<BoundTensor>,
+    pub indexer_compressor_kv: Option<BoundTensor>,
+    pub indexer_compressor_gate: Option<BoundTensor>,
+    pub indexer_compressor_ape: Option<BoundTensor>,
+    pub indexer_compressor_norm: Option<BoundTensor>,
+    pub indexer_attn_q_b: Option<BoundTensor>,
+    pub indexer_proj: Option<BoundTensor>,
 }
 
 #[allow(dead_code)]
@@ -174,6 +184,16 @@ fn bind_attention_block(model: &GgufModel, index: usize) -> Result<BoundAttentio
         attn_sinks,
         attn_output_a: bind_tensor(model, &format!("blk.{index}.attn_output_a.weight"))?,
         attn_output_b: bind_tensor(model, &format!("blk.{index}.attn_output_b.weight"))?,
+        attn_compressor_kv: None,
+        attn_compressor_gate: None,
+        attn_compressor_ape: None,
+        attn_compressor_norm: None,
+        indexer_compressor_kv: None,
+        indexer_compressor_gate: None,
+        indexer_compressor_ape: None,
+        indexer_compressor_norm: None,
+        indexer_attn_q_b: None,
+        indexer_proj: None,
     })
 }
 
@@ -201,7 +221,7 @@ fn bind_ffn_block(model: &GgufModel, index: usize) -> Result<BoundFfnBlock> {
     })
 }
 
-fn decode_tensor_1d_or_zeros(model: &GgufModel, tensor: &BoundTensor) -> Vec<f32> {
+fn decode_tensor_1d_or_zeros(_model: &GgufModel, tensor: &BoundTensor) -> Vec<f32> {
     tensor
         .dims
         .first()
@@ -210,7 +230,7 @@ fn decode_tensor_1d_or_zeros(model: &GgufModel, tensor: &BoundTensor) -> Vec<f32
         .unwrap_or_default()
 }
 
-fn decode_tensor_2d_or_zeros(model: &GgufModel, tensor: &BoundTensor) -> Vec<f32> {
+fn decode_tensor_2d_or_zeros(_model: &GgufModel, tensor: &BoundTensor) -> Vec<f32> {
     let width = tensor
         .dims
         .first()

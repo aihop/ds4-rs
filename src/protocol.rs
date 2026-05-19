@@ -1,15 +1,14 @@
-mod jsonish;
 mod parse;
 mod render;
 
 #[cfg(test)]
 mod tests;
 
-pub use jsonish::{extract_json_bool, extract_json_string, extract_json_usize};
+use serde::{Deserialize, Serialize};
 
 pub const DEFAULT_MODEL_ID: &str = "deepseek-v4-flash";
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ApiKind {
     ChatCompletions,
     Responses,
@@ -17,7 +16,7 @@ pub enum ApiKind {
     Messages,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RequestEnvelope {
     pub api: ApiKind,
     pub system: String,
@@ -35,21 +34,21 @@ pub struct RequestEnvelope {
     pub max_output_tokens: usize,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RequestTool {
     pub name: String,
     pub first_arg_name: Option<String>,
     pub property_names: Vec<String>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AssistantToolCall {
     pub id: String,
     pub name: String,
     pub arguments: String,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ResponseEnvelope {
     pub api: ApiKind,
     pub id: String,
@@ -63,7 +62,7 @@ pub struct ResponseEnvelope {
     pub tool_call: Option<AssistantToolCall>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct ParsedChatRequest {
     system: String,
     prompt: String,
@@ -72,7 +71,7 @@ struct ParsedChatRequest {
     last_tool_result: Option<String>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct ParsedResponsesRequest {
     system: String,
     prompt: String,
@@ -81,7 +80,7 @@ struct ParsedResponsesRequest {
     last_tool_result: Option<String>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct ParsedMessagesRequest {
     system: String,
     prompt: String,

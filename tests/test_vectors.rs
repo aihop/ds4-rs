@@ -1,8 +1,17 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use ds4_rust::protocol::{extract_json_string, extract_json_usize};
 use ds4_rust::{ApiKind, RequestEnvelope};
+
+fn extract_json_string(json: &str, key: &str) -> Option<String> {
+    let value: serde_json::Value = serde_json::from_str(json).ok()?;
+    value.get(key)?.as_str().map(|s| s.to_string())
+}
+
+fn extract_json_usize(json: &str, key: &str) -> Option<usize> {
+    let value: serde_json::Value = serde_json::from_str(json).ok()?;
+    value.get(key)?.as_u64().map(|n| n as usize)
+}
 
 fn vectors_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))

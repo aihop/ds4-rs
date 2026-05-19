@@ -1,9 +1,4 @@
-use super::jsonish::{
-    extract_first_property_name, extract_header_value, extract_json_bool, extract_json_string,
-    extract_json_text_or_array, extract_json_usize, extract_last_json_string, extract_message_content,
-    extract_nested_json_string, extract_property_names, extract_raw_json_value,
-    extract_top_level_objects, join_lines,
-};
+use serde_json::Value;
 use super::{
     ApiKind, ParsedChatRequest, ParsedMessagesRequest, ParsedResponsesRequest, RequestEnvelope,
     RequestTool,
@@ -11,87 +6,57 @@ use super::{
 
 impl RequestEnvelope {
     pub fn from_http(api: ApiKind, raw: &str) -> Self {
+        let value: Value = serde_json::from_str(raw).unwrap_or(Value::Null);
+        
         let chat = match api {
-            ApiKind::ChatCompletions => parse_chat_request(raw),
-            ApiKind::Responses | ApiKind::Completions | ApiKind::Messages => None,
+            ApiKind::ChatCompletions => parse_chat_request(&value),
+            _ => None,
         };
         let responses = match api {
-            ApiKind::Responses => parse_responses_request(raw),
-            ApiKind::ChatCompletions | ApiKind::Completions | ApiKind::Messages => None,
+            ApiKind::Responses => parse_responses_request(&value),
+            _ => None,
         };
         let messages = match api {
-            ApiKind::Messages => parse_messages_request(raw),
-            ApiKind::ChatCompletions | ApiKind::Responses | ApiKind::Completions => None,
+            ApiKind::Messages => parse_messages_request(&value),
+            _ => None,
         };
-        let (system, prompt) = match api {
-            ApiKind::ChatCompletions => chat
-                .as_ref()
-                .map(|parsed| (parsed.system.clone(), parsed.prompt.clone()))
-                .unwrap_or_else(|| {
-                    (
-                        extract_json_string(raw, "system")
-                            .unwrap_or_else(|| "You are a helpful assistant".to_string()),
-                        extract_json_string(raw, "prompt")
-                            .or_else(|| extract_json_string(raw, "input"))
-                            .unwrap_or_else(|| "hello".to_string()),
-                    )
-                }),
-            ApiKind::Responses => responses
-                .as_ref()
-                .map(|parsed| (parsed.system.clone(), parsed.prompt.clone()))
-                .unwrap_or_else(|| {
-                    (
-                        extract_json_string(raw, "instructions")
-                            .or_else(|| extract_json_string(raw, "system"))
-                            .unwrap_or_else(|| "You are a helpful assistant".to_string()),
-                        extract_json_string(raw, "prompt")
-                            .or_else(|| extract_json_string(raw, "input"))
-                            .unwrap_or_else(|| "hello".to_string()),
-                    )
-                }),
-            ApiKind::Completions => (
-                extract_json_string(raw, "system")
-                    .unwrap_or_else(|| "You are a helpful assistant".to_string()),
-                extract_json_string(raw, "prompt")
-                    .or_else(|| extract_json_string(raw, "input"))
-                    .unwrap_or_else(|| "hello".to_string()),
-            ),
-            ApiKind::Messages => messages
-                .as_ref()
-                .map(|parsed| (parsed.system.clone(), parsed.prompt.clone()))
-                .unwrap_or_else(|| {
-                    (
-                        extract_json_text_or_array(raw, "system")
-                            .or_else(|| extract_json_string(raw, "instructions"))
-                            .or_else(|| extract_json_string(raw, "system"))
-                            .unwrap_or_else(|| "You are a helpful assistant".to_string()),
-                        extract_json_string(raw, "prompt")
-                            .or_else(|| extract_json_string(raw, "input"))
-                            .unwrap_or_else(|| "hello".to_string()),
-                    )
-                }),
-        };
-        let previous_response_id = extract_json_string(raw, "previous_response_id");
-        let conversation = extract_json_string(raw, "conversation")
-            .or_else(|| extract_header_value(raw, "X-Session-Key"))
-            .or_else(|| extract_header_value(raw, "X-Conversation-Key"))
-            .or_else(|| extract_header_value(raw, "OpenAI-Conversation-ID"))
-            .or_else(|| extract_header_value(raw, "Anthropic-Conversation-ID"));
-        let available_tools = extract_tools(raw);
+        
+        let system;
+        let prompt;
+        
+        if let Some(c) = &chat {
+            system = c.system.clone();
+            prompt = c.prompt.clone();
+        } else if let Some(r) = &responses {
+            system = r.system.clone();
+            prompt = r.prompt.clone();
+        } else if let Some(m) = &messages {
+            system = m.system.clone();
+            prompt = m.prompt.clone();
+        } else {
+            system = value.get("system").and_then(|v| v.as_str()).unwrap_or("You are a helpful assistant").to_string();
+            prompt = value.get("prompt").or_else(|| value.get("input")).and_then(|v| v.as_str()).unwrap_or("hello").to_string();
+        }
+        
+        let previous_response_id = value.get("previous_response_id").and_then(|v| v.as_str()).map(|s| s.to_string());
+        let conversation = value.get("conversation").and_then(|v| v.as_str()).map(|s| s.to_string());
+        let available_tools = extract_tools(&value);
         let has_tools = !available_tools.is_empty();
         let (primary_tool_name, primary_tool_arg_name) = available_tools
             .first()
             .cloned()
             .map(|tool| (Some(tool.name), tool.first_arg_name))
             .unwrap_or((None, None));
-        let raw_last_tool_call_id = extract_last_json_string(raw, "tool_call_id");
-        let raw_last_content = extract_last_json_string(raw, "content");
+            
+        let raw_last_tool_call_id = value.get("tool_call_id").and_then(|v| v.as_str()).map(|s| s.to_string());
+        let raw_last_content = value.get("content").and_then(|v| v.as_str()).map(|s| s.to_string());
         let raw_has_tool_results = raw.contains("\"role\":\"tool\"") || raw.contains("\"tool_call_id\"");
         let raw_last_tool_result = if raw_has_tool_results {
             raw_last_content.clone()
         } else {
             None
         };
+        
         let (last_tool_call_id, has_tool_results, last_tool_result) = chat
             .map(|parsed| {
                 (
@@ -119,11 +84,15 @@ impl RequestEnvelope {
                 })
             })
             .unwrap_or((raw_last_tool_call_id, raw_has_tool_results, raw_last_tool_result));
-        let stream = extract_json_bool(raw, "stream").unwrap_or(false);
-        let max_output_tokens = extract_json_usize(raw, "max_output_tokens")
-            .or_else(|| extract_json_usize(raw, "max_completion_tokens"))
-            .or_else(|| extract_json_usize(raw, "max_tokens"))
+            
+        let stream = value.get("stream").and_then(|v| v.as_bool()).unwrap_or(false);
+        let max_output_tokens = value.get("max_output_tokens")
+            .or_else(|| value.get("max_completion_tokens"))
+            .or_else(|| value.get("max_tokens"))
+            .and_then(|v| v.as_u64())
+            .map(|v| v as usize)
             .unwrap_or(0);
+            
         Self {
             api,
             system,
@@ -143,100 +112,102 @@ impl RequestEnvelope {
     }
 }
 
-pub(super) fn parse_chat_request(raw: &str) -> Option<ParsedChatRequest> {
+fn parse_chat_request(value: &Value) -> Option<ParsedChatRequest> {
     let mut system_parts = Vec::new();
     let mut prompt_parts = Vec::new();
     let mut last_tool_call_id = None;
     let mut has_tool_results = false;
     let mut last_tool_result = None;
-    for message in extract_top_level_objects(raw, "messages")? {
-        let role = extract_json_string(message, "role")?;
-        let content = extract_message_content(message).unwrap_or_default();
-        match role.as_str() {
-            "system" | "developer" => {
-                if !content.is_empty() {
-                    system_parts.push(content);
+
+    if let Some(messages) = value.get("messages").and_then(|v| v.as_array()) {
+        for message in messages {
+            let role = message.get("role").and_then(|v| v.as_str()).unwrap_or("");
+            let content = message.get("content").and_then(|v| v.as_str()).unwrap_or("");
+            
+            match role {
+                "system" | "developer" => {
+                    if !content.is_empty() {
+                        system_parts.push(content.to_string());
+                    }
                 }
+                "user" => {
+                    if !content.is_empty() {
+                        prompt_parts.push(format!("User: {content}"));
+                    }
+                }
+                "assistant" => {
+                    if !content.is_empty() {
+                        prompt_parts.push(format!("Assistant: {content}"));
+                    }
+                    if let Some(tool_calls) = message.get("tool_calls").and_then(|v| v.as_array()) {
+                        for tool_call in tool_calls {
+                            let call_id = tool_call.get("id").and_then(|v| v.as_str()).unwrap_or("call_unknown");
+                            let call_type = tool_call.get("type").and_then(|v| v.as_str()).unwrap_or("function");
+                            let name = tool_call.get("function")
+                                .and_then(|f| f.get("name"))
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("tool");
+                            let arguments = tool_call.get("function")
+                                .and_then(|f| f.get("arguments"))
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("");
+                                
+                            prompt_parts.push(format!("AssistantToolCall[{call_id}] {call_type} {name}({arguments})"));
+                            last_tool_call_id = Some(call_id.to_string());
+                        }
+                    }
+                }
+                "tool" => {
+                    let tool_call_id = message.get("tool_call_id").and_then(|v| v.as_str()).unwrap_or("call_unknown");
+                    if !content.is_empty() {
+                        prompt_parts.push(render_tool_result_text(content));
+                        last_tool_result = Some(content.to_string());
+                    }
+                    last_tool_call_id = Some(tool_call_id.to_string());
+                    has_tool_results = true;
+                }
+                _ => {}
             }
-            "user" => {
-                if !content.is_empty() {
-                    prompt_parts.push(format!("User: {content}"));
-                }
-            }
-            "assistant" => {
-                if !content.is_empty() {
-                    prompt_parts.push(format!("Assistant: {content}"));
-                }
-                for tool_call in extract_top_level_objects(message, "tool_calls").unwrap_or_default() {
-                    let call_id =
-                        extract_json_string(tool_call, "id").unwrap_or_else(|| "call_unknown".to_string());
-                    let call_type = extract_json_string(tool_call, "type")
-                        .unwrap_or_else(|| "function".to_string());
-                    let name = extract_json_string(tool_call, "name")
-                        .or_else(|| extract_json_string(tool_call, "function"))
-                        .or_else(|| extract_nested_json_string(tool_call, "function", "name"))
-                        .unwrap_or_else(|| "tool".to_string());
-                    let arguments = extract_json_string(tool_call, "arguments")
-                        .or_else(|| extract_nested_json_string(tool_call, "function", "arguments"))
-                        .unwrap_or_default();
-                    prompt_parts.push(format!(
-                        "AssistantToolCall[{call_id}] {call_type} {name}({arguments})"
-                    ));
-                    last_tool_call_id = Some(call_id);
-                }
-            }
-            "tool" => {
-                let tool_call_id =
-                    extract_json_string(message, "tool_call_id").unwrap_or_else(|| "call_unknown".to_string());
-                if !content.is_empty() {
-                    prompt_parts.push(render_tool_result_text(&content));
-                    last_tool_result = Some(content.clone());
-                }
-                last_tool_call_id = Some(tool_call_id);
-                has_tool_results = true;
-            }
-            _ => {}
         }
     }
+
     if system_parts.is_empty() && prompt_parts.is_empty() {
         return None;
     }
+
     Some(ParsedChatRequest {
-        system: join_lines(&system_parts).unwrap_or_else(|| "You are a helpful assistant".to_string()),
-        prompt: join_lines(&prompt_parts).unwrap_or_else(|| "hello".to_string()),
+        system: if system_parts.is_empty() { "You are a helpful assistant".to_string() } else { system_parts.join("\n") },
+        prompt: if prompt_parts.is_empty() { "hello".to_string() } else { prompt_parts.join("\n") },
         last_tool_call_id,
         has_tool_results,
         last_tool_result,
     })
 }
 
-pub(super) fn parse_responses_request(raw: &str) -> Option<ParsedResponsesRequest> {
+fn parse_responses_request(value: &Value) -> Option<ParsedResponsesRequest> {
     let mut system_parts = Vec::new();
     let mut prompt_parts = Vec::new();
     let mut last_tool_call_id = None;
     let mut has_tool_results = false;
     let mut last_tool_result = None;
 
-    if let Some(instructions) = extract_json_string(raw, "instructions") {
+    if let Some(instructions) = value.get("instructions").and_then(|v| v.as_str()) {
         if !instructions.is_empty() {
-            system_parts.push(instructions);
+            system_parts.push(instructions.to_string());
         }
     }
 
-    if let Some(items) = extract_top_level_objects(raw, "input") {
+    if let Some(items) = value.get("input").and_then(|v| v.as_array()) {
         for item in items {
-            let item_type = extract_json_string(item, "type").unwrap_or_else(|| "message".to_string());
-            match item_type.as_str() {
+            let item_type = item.get("type").and_then(|v| v.as_str()).unwrap_or("message");
+            match item_type {
                 "message" => {
-                    let role = extract_json_string(item, "role").unwrap_or_else(|| "user".to_string());
-                    let content = extract_message_content(item)
-                        .or_else(|| extract_json_string(item, "text"))
-                        .or_else(|| extract_json_string(item, "content"))
-                        .unwrap_or_default();
-                    match role.as_str() {
+                    let role = item.get("role").and_then(|v| v.as_str()).unwrap_or("user");
+                    let content = item.get("content").or_else(|| item.get("text")).and_then(|v| v.as_str()).unwrap_or("");
+                    match role {
                         "system" | "developer" => {
                             if !content.is_empty() {
-                                system_parts.push(content);
+                                system_parts.push(content.to_string());
                             }
                         }
                         "assistant" => {
@@ -252,38 +223,24 @@ pub(super) fn parse_responses_request(raw: &str) -> Option<ParsedResponsesReques
                     }
                 }
                 "function_call" | "custom_tool_call" => {
-                    let call_id = extract_json_string(item, "call_id")
-                        .or_else(|| extract_json_string(item, "id"))
-                        .unwrap_or_else(|| "call_unknown".to_string());
-                    let name = extract_json_string(item, "name")
-                        .or_else(|| extract_json_string(item, "function"))
-                        .unwrap_or_else(|| "tool".to_string());
-                    let arguments = extract_json_string(item, "arguments")
-                        .or_else(|| extract_json_string(item, "input"))
-                        .unwrap_or_default();
-                    prompt_parts.push(format!(
-                        "AssistantToolCall[{call_id}] function {name}({arguments})"
-                    ));
-                    last_tool_call_id = Some(call_id);
+                    let call_id = item.get("call_id").or_else(|| item.get("id")).and_then(|v| v.as_str()).unwrap_or("call_unknown");
+                    let name = item.get("name").or_else(|| item.get("function")).and_then(|v| v.as_str()).unwrap_or("tool");
+                    let arguments = item.get("arguments").or_else(|| item.get("input")).and_then(|v| v.as_str()).unwrap_or("");
+                    prompt_parts.push(format!("AssistantToolCall[{call_id}] function {name}({arguments})"));
+                    last_tool_call_id = Some(call_id.to_string());
                 }
                 "function_call_output" | "custom_tool_call_output" => {
-                    let call_id = extract_json_string(item, "call_id")
-                        .or_else(|| extract_json_string(item, "tool_call_id"))
-                        .or_else(|| extract_json_string(item, "id"))
-                        .unwrap_or_else(|| "call_unknown".to_string());
-                    let output = extract_json_string(item, "output")
-                        .or_else(|| extract_json_string(item, "content"))
-                        .or_else(|| extract_json_string(item, "text"))
-                        .unwrap_or_default();
+                    let call_id = item.get("call_id").or_else(|| item.get("tool_call_id")).or_else(|| item.get("id")).and_then(|v| v.as_str()).unwrap_or("call_unknown");
+                    let output = item.get("output").or_else(|| item.get("content")).or_else(|| item.get("text")).and_then(|v| v.as_str()).unwrap_or("");
                     if !output.is_empty() {
-                        prompt_parts.push(render_tool_result_text(&output));
-                        last_tool_result = Some(output.clone());
+                        prompt_parts.push(render_tool_result_text(output));
+                        last_tool_result = Some(output.to_string());
                     }
-                    last_tool_call_id = Some(call_id);
+                    last_tool_call_id = Some(call_id.to_string());
                     has_tool_results = true;
                 }
                 "reasoning" => {
-                    if let Some(summary) = extract_json_string(item, "summary") {
+                    if let Some(summary) = item.get("summary").and_then(|v| v.as_str()) {
                         if !summary.is_empty() {
                             prompt_parts.push(format!("Assistant: {summary}"));
                         }
@@ -295,12 +252,10 @@ pub(super) fn parse_responses_request(raw: &str) -> Option<ParsedResponsesReques
     }
 
     if system_parts.is_empty() && prompt_parts.is_empty() {
-        let prompt = extract_json_string(raw, "prompt").or_else(|| extract_json_string(raw, "input"))?;
+        let prompt = value.get("prompt").or_else(|| value.get("input")).and_then(|v| v.as_str())?;
         return Some(ParsedResponsesRequest {
-            system: extract_json_string(raw, "instructions")
-                .or_else(|| extract_json_string(raw, "system"))
-                .unwrap_or_else(|| "You are a helpful assistant".to_string()),
-            prompt,
+            system: value.get("instructions").or_else(|| value.get("system")).and_then(|v| v.as_str()).unwrap_or("You are a helpful assistant").to_string(),
+            prompt: prompt.to_string(),
             last_tool_call_id,
             has_tool_results,
             last_tool_result,
@@ -308,97 +263,94 @@ pub(super) fn parse_responses_request(raw: &str) -> Option<ParsedResponsesReques
     }
 
     Some(ParsedResponsesRequest {
-        system: join_lines(&system_parts).unwrap_or_else(|| "You are a helpful assistant".to_string()),
-        prompt: join_lines(&prompt_parts).unwrap_or_else(|| "hello".to_string()),
+        system: if system_parts.is_empty() { "You are a helpful assistant".to_string() } else { system_parts.join("\n") },
+        prompt: if prompt_parts.is_empty() { "hello".to_string() } else { prompt_parts.join("\n") },
         last_tool_call_id,
         has_tool_results,
         last_tool_result,
     })
 }
 
-pub(super) fn parse_messages_request(raw: &str) -> Option<ParsedMessagesRequest> {
+fn parse_messages_request(value: &Value) -> Option<ParsedMessagesRequest> {
     let mut system_parts = Vec::new();
     let mut prompt_parts = Vec::new();
     let mut last_tool_call_id = None;
     let mut has_tool_results = false;
     let mut last_tool_result = None;
 
-    if let Some(system) = extract_json_text_or_array(raw, "system") {
-        if !system.is_empty() {
-            system_parts.push(system);
+    if let Some(system) = value.get("system") {
+        if let Some(s) = system.as_str() {
+            if !s.is_empty() {
+                system_parts.push(s.to_string());
+            }
+        } else if let Some(arr) = system.as_array() {
+            for item in arr {
+                if let Some(text) = item.get("text").and_then(|v| v.as_str()) {
+                    if !text.is_empty() {
+                        system_parts.push(text.to_string());
+                    }
+                }
+            }
         }
     }
 
-    for message in extract_top_level_objects(raw, "messages")? {
-        let role = extract_json_string(message, "role").unwrap_or_else(|| "user".to_string());
-        let content_blocks = extract_top_level_objects(message, "content");
-        if let Some(blocks) = content_blocks {
-            for block in blocks {
-                let block_type = extract_json_string(block, "type").unwrap_or_else(|| "text".to_string());
-                match block_type.as_str() {
-                    "text" | "input_text" | "output_text" => {
-                        let text = extract_json_string(block, "text")
-                            .or_else(|| extract_json_string(block, "content"))
-                            .unwrap_or_default();
-                        if text.is_empty() {
-                            continue;
+    if let Some(messages) = value.get("messages").and_then(|v| v.as_array()) {
+        for message in messages {
+            let role = message.get("role").and_then(|v| v.as_str()).unwrap_or("user");
+            
+            if let Some(content_blocks) = message.get("content").and_then(|v| v.as_array()) {
+                for block in content_blocks {
+                    let block_type = block.get("type").and_then(|v| v.as_str()).unwrap_or("text");
+                    match block_type {
+                        "text" | "input_text" | "output_text" => {
+                            let text = block.get("text").or_else(|| block.get("content")).and_then(|v| v.as_str()).unwrap_or("");
+                            if text.is_empty() { continue; }
+                            match role {
+                                "assistant" => prompt_parts.push(format!("Assistant: {text}")),
+                                "system" | "developer" => system_parts.push(text.to_string()),
+                                _ => prompt_parts.push(format!("User: {text}")),
+                            }
                         }
-                        match role.as_str() {
-                            "assistant" => prompt_parts.push(format!("Assistant: {text}")),
-                            "system" | "developer" => system_parts.push(text),
-                            _ => prompt_parts.push(format!("User: {text}")),
+                        "tool_use" => {
+                            let call_id = block.get("id").or_else(|| block.get("tool_use_id")).and_then(|v| v.as_str()).unwrap_or("call_unknown");
+                            let name = block.get("name").and_then(|v| v.as_str()).unwrap_or("tool");
+                            let arguments = block.get("input").map(|v| v.to_string()).unwrap_or_else(|| "{}".to_string());
+                            prompt_parts.push(format!("AssistantToolCall[{call_id}] function {name}({arguments})"));
+                            last_tool_call_id = Some(call_id.to_string());
                         }
-                    }
-                    "tool_use" => {
-                        let call_id = extract_json_string(block, "id")
-                            .or_else(|| extract_json_string(block, "tool_use_id"))
-                            .unwrap_or_else(|| "call_unknown".to_string());
-                        let name = extract_json_string(block, "name")
-                            .unwrap_or_else(|| "tool".to_string());
-                        let arguments =
-                            extract_raw_json_value(block, "input").unwrap_or_else(|| "{}".to_string());
-                        prompt_parts.push(format!(
-                            "AssistantToolCall[{call_id}] function {name}({arguments})"
-                        ));
-                        last_tool_call_id = Some(call_id);
-                    }
-                    "tool_result" => {
-                        let call_id = extract_json_string(block, "tool_use_id")
-                            .or_else(|| extract_json_string(block, "id"))
-                            .unwrap_or_else(|| "call_unknown".to_string());
-                        let output = extract_json_text_or_array(block, "content")
-                            .or_else(|| extract_json_string(block, "text"))
-                            .unwrap_or_default();
-                        if !output.is_empty() {
-                            prompt_parts.push(render_tool_result_text(&output));
-                            last_tool_result = Some(output.clone());
+                        "tool_result" => {
+                            let call_id = block.get("tool_use_id").or_else(|| block.get("id")).and_then(|v| v.as_str()).unwrap_or("call_unknown");
+                            let output = block.get("content").or_else(|| block.get("text")).and_then(|v| v.as_str()).unwrap_or("");
+                            if !output.is_empty() {
+                                prompt_parts.push(render_tool_result_text(output));
+                                last_tool_result = Some(output.to_string());
+                            }
+                            last_tool_call_id = Some(call_id.to_string());
+                            has_tool_results = true;
                         }
-                        last_tool_call_id = Some(call_id);
-                        has_tool_results = true;
+                        _ => {}
                     }
-                    _ => {}
                 }
+                continue;
             }
-            continue;
-        }
 
-        let content = extract_message_content(message).unwrap_or_default();
-        if content.is_empty() {
-            continue;
-        }
-        match role.as_str() {
-            "assistant" => prompt_parts.push(format!("Assistant: {content}")),
-            "system" | "developer" => system_parts.push(content),
-            _ => prompt_parts.push(format!("User: {content}")),
+            let content = message.get("content").and_then(|v| v.as_str()).unwrap_or("");
+            if content.is_empty() { continue; }
+            match role {
+                "assistant" => prompt_parts.push(format!("Assistant: {content}")),
+                "system" | "developer" => system_parts.push(content.to_string()),
+                _ => prompt_parts.push(format!("User: {content}")),
+            }
         }
     }
 
     if system_parts.is_empty() && prompt_parts.is_empty() {
         return None;
     }
+
     Some(ParsedMessagesRequest {
-        system: join_lines(&system_parts).unwrap_or_else(|| "You are a helpful assistant".to_string()),
-        prompt: join_lines(&prompt_parts).unwrap_or_else(|| "hello".to_string()),
+        system: if system_parts.is_empty() { "You are a helpful assistant".to_string() } else { system_parts.join("\n") },
+        prompt: if prompt_parts.is_empty() { "hello".to_string() } else { prompt_parts.join("\n") },
         last_tool_call_id,
         has_tool_results,
         last_tool_result,
@@ -413,19 +365,27 @@ fn escape_tool_result_text(output: &str) -> String {
     output.replace("</tool_result>", "&lt;/tool_result>")
 }
 
-fn extract_tools(raw: &str) -> Vec<RequestTool> {
+fn extract_tools(value: &Value) -> Vec<RequestTool> {
     let mut out = Vec::new();
-    for tool in extract_top_level_objects(raw, "tools").unwrap_or_default() {
-        let Some(name) = extract_json_string(tool, "name")
-            .or_else(|| extract_nested_json_string(tool, "function", "name"))
-        else {
-            continue;
-        };
-        out.push(RequestTool {
-            name,
-            first_arg_name: extract_first_property_name(tool),
-            property_names: extract_property_names(tool),
-        });
+    if let Some(tools) = value.get("tools").and_then(|v| v.as_array()) {
+        for tool in tools {
+            if let Some(name) = tool.get("name").or_else(|| tool.get("function").and_then(|f| f.get("name"))).and_then(|v| v.as_str()) {
+                let mut property_names = Vec::new();
+                if let Some(parameters) = tool.get("parameters").or_else(|| tool.get("input_schema")) {
+                    if let Some(properties) = parameters.get("properties").and_then(|v| v.as_object()) {
+                        for key in properties.keys() {
+                            property_names.push(key.clone());
+                        }
+                    }
+                }
+                let first_arg_name = property_names.first().cloned();
+                out.push(RequestTool {
+                    name: name.to_string(),
+                    first_arg_name,
+                    property_names,
+                });
+            }
+        }
     }
     out
 }

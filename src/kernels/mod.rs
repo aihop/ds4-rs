@@ -7,3 +7,4 @@ pub(crate) mod metal_graph;
 // pub(crate) mod matmul;
 // pub(crate) mod norm;
 // pub(crate) mod quant;
+pub(crate) mod ds4_constants;

@@ -46,7 +46,7 @@ fn kv_cache_round_trips_entries_through_disk() {
     let loaded = restarted
         .load_rendered_text(&entry.rendered_text)
         .expect("load should succeed")
-        .cloned()
+        .clone()
         .expect("entry should exist");
     assert_eq!(loaded, entry);
 

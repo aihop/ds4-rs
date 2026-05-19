@@ -1,7 +1,46 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use super::jsonish::{json_escape, stream_chunks};
 use super::{ApiKind, AssistantToolCall, ResponseEnvelope, DEFAULT_MODEL_ID};
+
+fn json_escape(input: &str) -> String {
+    let mut out = String::new();
+    for ch in input.chars() {
+        match ch {
+            '\\' => out.push_str("\\\\"),
+            '"' => out.push_str("\\\""),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            ch if (ch as u32) < 0x20 => {
+                use std::fmt::Write as _;
+                let _ = write!(&mut out, "\\u{:04x}", ch as u32);
+            }
+            other => out.push(other),
+        }
+    }
+    out
+}
+
+fn stream_chunks(input: &str, chunk_len: usize) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut chunk = String::new();
+    let mut count = 0usize;
+    for ch in input.chars() {
+        chunk.push(ch);
+        count += 1;
+        if count >= chunk_len {
+            out.push(std::mem::take(&mut chunk));
+            count = 0;
+        }
+    }
+    if !chunk.is_empty() {
+        out.push(chunk);
+    }
+    if out.is_empty() {
+        out.push(String::new());
+    }
+    out
+}
 
 impl ResponseEnvelope {
     pub fn new_message(

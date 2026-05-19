@@ -20,6 +20,8 @@ fn uses_tensor_backed_logits_when_supported() {
         model: Some(model),
         tokenizer,
         weights: Some(weights),
+        metal_graph: std::sync::Mutex::new(None),
+        metal_graph: std::sync::Mutex::new(None),
     };
 
     let logits = engine.infer_logits(&Tokens(vec![1]));
@@ -40,6 +42,8 @@ fn uses_reference_logits_for_large_output_heads_by_default() {
         model: Some(model),
         tokenizer,
         weights: Some(weights),
+        metal_graph: std::sync::Mutex::new(None),
+        metal_graph: std::sync::Mutex::new(None),
     };
 
     assert!(engine.should_use_reference_logits(engine.weights.as_ref().unwrap()));
@@ -60,6 +64,8 @@ fn quality_still_allows_reference_logits_for_large_output_heads() {
         model: Some(model),
         tokenizer,
         weights: Some(weights),
+        metal_graph: std::sync::Mutex::new(None),
+        metal_graph: std::sync::Mutex::new(None),
     };
 
     assert!(engine.should_use_reference_logits(engine.weights.as_ref().unwrap()));

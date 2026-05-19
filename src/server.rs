@@ -1,7 +1,7 @@
 mod reply;
 mod tools;
 
-use std::io::{ErrorKind, Write};
+use std::io::Write;
 use std::net::TcpStream;
 use axum::{
     response::{IntoResponse, sse::Sse},
@@ -14,7 +14,6 @@ use axum::{
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
-
 use crate::continuation::{ContinuationEntry, ContinuationStore};
 use crate::engine::{Engine, ThinkMode};
 use crate::error::{Ds4Error, Result};
@@ -597,28 +596,7 @@ fn report_debug_event(hypothesis_id: &str, location: &str, msg: &str, data_json:
     }
 }
 
-fn http_body_preview(raw: &str, max_chars: usize) -> String {
-    raw.split_once("\r\n\r\n")
-        .map(|(_, body)| truncate_for_debug(body, max_chars))
-        .unwrap_or_default()
-}
 
-fn http_body_len(raw: &str) -> usize {
-    raw.split_once("\r\n\r\n")
-        .map(|(_, body)| body.len())
-        .unwrap_or(0)
-}
-
-fn truncate_for_debug(input: &str, max_chars: usize) -> String {
-    let mut out = String::new();
-    for ch in input.chars().take(max_chars) {
-        out.push(ch);
-    }
-    if input.chars().count() > max_chars {
-        out.push_str("...");
-    }
-    out
-}
 
 
 
@@ -722,15 +700,6 @@ fn rewrite_prompt_with_tool_replay(prompt: &str, tool_call_id: &str, sampled_blo
 mod tests {
     use super::*;
     use crate::protocol::RequestTool;
-
-    #[test]
-    
-
-    #[test]
-    fn parses_content_length_after_request_line() {
-        let header = b"POST /v1/chat/completions HTTP/1.1\r\nHost: 127.0.0.1:1234\r\nContent-Length: 123\r\nContent-Type: application/json";
-        assert_eq!(parse_content_length(header), Some(123));
-    }
 
     #[test]
     fn uses_fixed_openai_model_id() {

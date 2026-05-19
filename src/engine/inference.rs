@@ -20,15 +20,15 @@ impl Engine {
 
     pub(crate) fn try_reference_prefill(
         &self,
-        kv_cache: &mut TransformerKvCache,
-        scratch: &mut crate::kernels::decode_scratch::DecodeScratch,
-        tokens: &[i32],
-        start_pos: usize,
+        _kv_cache: &mut TransformerKvCache,
+        _scratch: &mut crate::kernels::decode_scratch::DecodeScratch,
+        _tokens: &[i32],
+        _start_pos: usize,
     ) -> Option<Vec<f32>> {
         None
     }
 
-    fn try_infer_logits_from_weights(&self, tokens: &Tokens) -> Option<Vec<f32>> {
+    fn try_infer_logits_from_weights(&self, _tokens: &Tokens) -> Option<Vec<f32>> {
         None
     }
 
@@ -64,7 +64,10 @@ impl Engine {
                             (131072 * 4) as u64,
                         );
                     }
-                    return Some(logits);
+                    // For now, the Metal graph is just a stub and `execute_decode_step` doesn't compute logits.
+                    // We must return None so that the engine falls back to `stub_infer_logits`.
+                    // Otherwise, the all-zero logits will cause token 0 (`<unk>`) to be predicted forever ("?").
+                    return None;
                 }
             }
         }
