@@ -1,0 +1,5 @@
+Cargo.lock
+.DS_Store
+ds4flash.gguf
+target/
+tmp/

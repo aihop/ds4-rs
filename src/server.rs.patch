@@ -1,0 +1,22 @@
+--- src/server.rs
++++ src/server.rs
+@@ -2,12 +2,15 @@
+ mod tools;
+ 
+-use std::io::{ErrorKind, Read, Write};
+-use std::net::{TcpListener, TcpStream};
+ use std::sync::atomic::{AtomicU64, Ordering};
+ use std::sync::{Arc, Mutex};
+ use std::time::Instant;
+ 
++use axum::{
++    extract::{State, Json, Request},
++    http::\{HeaderMap, StatusCode},
++    response::{IntoResponse, Response, Sse},
++    routing::{get, post},
++    Router,
++};
++use tokio::net::TcpListener;
++
+ use crate::continuation::{ContinuationEntry, ContinuationStore};
+ use crate::engine::{Engine, ThinkMode};

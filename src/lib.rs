@@ -1,0 +1,25 @@
+mod kernels;
+pub mod continuation;
+pub mod engine;
+pub mod error;
+pub mod ffi;
+pub mod gguf;
+pub mod kv;
+pub mod model;
+pub mod protocol;
+pub mod server;
+pub mod session;
+pub mod tokenizer;
+pub mod types;
+mod weights;
+
+pub use continuation::{ContinuationEntry, ContinuationStore};
+pub use engine::{Backend, ContextMemory, Engine, EngineOptions, ThinkMode};
+pub use error::{Ds4Error, Result};
+pub use gguf::{GgufModel, GgufTensor};
+pub use kv::{KvCache, KvEntry, KvToolReplayEntry};
+pub use protocol::{ApiKind, RequestEnvelope, ResponseEnvelope};
+pub use server::{Server, ServerConfig};
+pub use session::{ProgressHandler, Session, SyncStats};
+pub use tokenizer::{render_chat_prompt, Tokenizer};
+pub use types::{SessionSnapshot, TokenScore, Tokens};
