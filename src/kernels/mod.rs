@@ -1,10 +1,10 @@
 pub(crate) mod activation;
-// pub(crate) mod attention;
+pub(crate) mod attention;
 pub(crate) mod decode_scratch;
-pub(crate) mod metal_graph;
-// pub(crate) mod ffn;
-// pub(crate) mod hc;
-// pub(crate) mod matmul;
-// pub(crate) mod norm;
-// pub(crate) mod quant;
+pub(crate) mod metal;
+pub(crate) mod ffn;
+pub(crate) mod hc;
+pub(crate) mod matmul;
+pub(crate) mod norm;
+pub(crate) mod quant;
 pub(crate) mod ds4_constants;

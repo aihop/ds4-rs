@@ -42,7 +42,7 @@ pub(crate) fn ffn_block_output(
     hidden: &[f32],
     token: i32,
 ) -> Option<Vec<f32>> {
-    let norm = rms_norm_with_decoded_weight(&layer.ffn_norm_data, hidden)
+    let norm = rms_norm_with_decoded_weight(&crate::kernels::matmul::decode_tensor_1d(model, &layer.ffn_norm)?, hidden)
         .or_else(|| rms_norm_weight(model, &layer.ffn_norm, hidden))?;
     let routed = routed_moe(model, layer, scratch, &norm, token)
         .unwrap_or_else(|| vec![0.0; hidden.len()]);
@@ -70,11 +70,11 @@ pub(crate) fn ffn_block_output_batch(
     let hc_pre = hc_pre_from_states_batch(
         model,
         layer.hc_ffn_fn.as_ref()?,
-        layer.hc_ffn_fn_data.as_deref(),
+        None,
         layer.hc_ffn_scale.as_ref()?,
-        layer.hc_ffn_scale_data.as_deref(),
+        None,
         layer.hc_ffn_base.as_ref()?,
-        layer.hc_ffn_base_data.as_deref(),
+        None,
         residual_hc_batch,
     )?;
     if hc_pre.n_tokens != tokens.len() {
@@ -84,7 +84,7 @@ pub(crate) fn ffn_block_output_batch(
     let mut norm_batch = Vec::with_capacity(hc_pre.out.len());
     for hidden in hc_pre.out.chunks_exact(hc_pre.n_embd) {
         norm_batch.extend(
-            rms_norm_with_decoded_weight(&layer.ffn_norm_data, hidden)
+            rms_norm_with_decoded_weight(&crate::kernels::matmul::decode_tensor_1d(model, &layer.ffn_norm)?, hidden)
                 .or_else(|| rms_norm_weight(model, &layer.ffn_norm, hidden))?,
         );
     }
@@ -363,16 +363,17 @@ fn select_experts(
     norm: &[f32],
     token: i32,
 ) -> Option<Vec<(usize, f32)>> {
-    if layer.ffn_gate_tid2eid_data.is_some() {
-        return hash_selected_experts(layer, token)
+    if layer.ffn_gate_tid2eid.is_some() {
+        return hash_selected_experts(model, layer, token)
             .and_then(|selected| hash_router_weights(model, layer, norm, &selected));
     }
     topk_selected_experts(model, layer, norm)
 }
 
-fn hash_selected_experts(layer: &BoundFfnBlock, token: i32) -> Option<Vec<usize>> {
+fn hash_selected_experts(model: &GgufModel, layer: &BoundFfnBlock, token: i32) -> Option<Vec<usize>> {
     let table = layer.ffn_gate_tid2eid.as_ref()?;
-    let data = layer.ffn_gate_tid2eid_data.as_deref()?;
+    let data_vec = crate::kernels::matmul::decode_tensor_1d(model, layer.ffn_gate_tid2eid.as_ref()?)?;
+    let data = data_vec.as_slice();
     if table.tensor_type != 26 || table.dims.len() != 2 || token < 0 {
         return None;
     }
@@ -387,7 +388,7 @@ fn hash_selected_experts(layer: &BoundFfnBlock, token: i32) -> Option<Vec<usize>
     Some(
         row.iter()
             .copied()
-            .filter_map(|value| usize::try_from(value).ok())
+            .map(|value| value as usize)
             .collect(),
     )
 }
@@ -417,7 +418,7 @@ fn topk_selected_experts(
 ) -> Option<Vec<(usize, f32)>> {
     let probs = router_probs(model, layer, norm)?;
     let mut selection = probs.clone();
-    if let Some(bias) = layer.ffn_exp_probs_b_data.as_deref() {
+    if let Some(bias) = layer.ffn_exp_probs_b.as_ref().and_then(|t| crate::kernels::matmul::decode_tensor_1d(model, t)) {
         if bias.len() != selection.len() {
             return None;
         }

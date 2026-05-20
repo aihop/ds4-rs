@@ -132,7 +132,7 @@ pub(crate) fn try_decode_next_logits_from_blocks(
     pos: usize,
 ) -> Option<Vec<f32>> {
     let final_hidden = forward_token_through_blocks(model, weights, kv_cache, scratch, token, pos)?;
-    let final_hidden = match (&weights.output_norm, &weights.output_norm_data) {
+    let final_hidden = match (&weights.output_norm, &None::<Vec<f32>> /* output_norm_data */) {
         (Some(_), Some(output_norm_data)) => {
             rms_norm_with_decoded_weight(output_norm_data, &final_hidden)?
         }
@@ -201,11 +201,11 @@ fn forward_token_through_blocks_hc(
         let attn_pre = hc_pre_from_state(
             model,
             block.attention.hc_attn_fn.as_ref()?,
-            block.attention.hc_attn_fn_data.as_deref(),
+            None,
             block.attention.hc_attn_scale.as_ref()?,
-            block.attention.hc_attn_scale_data.as_deref(),
+            None,
             block.attention.hc_attn_base.as_ref()?,
-            block.attention.hc_attn_base_data.as_deref(),
+            None,
             &state,
         )?;
         let attn_out = attention_block_output(
@@ -221,11 +221,11 @@ fn forward_token_through_blocks_hc(
             let ffn_pre = hc_pre_from_state(
                 model,
                 ffn.hc_ffn_fn.as_ref()?,
-                ffn.hc_ffn_fn_data.as_deref(),
+                None,
                 ffn.hc_ffn_scale.as_ref()?,
-                ffn.hc_ffn_scale_data.as_deref(),
+                None,
                 ffn.hc_ffn_base.as_ref()?,
-                ffn.hc_ffn_base_data.as_deref(),
+                None,
                 &state,
             )?;
             let ffn_out = ffn_block_output(model, ffn, scratch, &ffn_pre.out, token)?;
@@ -259,11 +259,11 @@ fn forward_tokens_through_blocks_hc_layer_major(
         let attn_pre = hc_pre_from_states_batch(
             model,
             block.attention.hc_attn_fn.as_ref()?,
-            block.attention.hc_attn_fn_data.as_deref(),
+            None,
             block.attention.hc_attn_scale.as_ref()?,
-            block.attention.hc_attn_scale_data.as_deref(),
+            None,
             block.attention.hc_attn_base.as_ref()?,
-            block.attention.hc_attn_base_data.as_deref(),
+            None,
             &cur_states,
         )?;
         let mut attn_out_batch = Vec::with_capacity(tokens.len() * n_embd);
@@ -369,7 +369,8 @@ fn attention_block_output(
     pos: usize,
 ) -> Option<Vec<f32>> {
     let shape = infer_shape(layer)?;
-    rms_norm_with_decoded_weight_into(&mut scratch.attn_norm, &layer.attn_norm_data, hidden)?;
+    let norm_weight = crate::kernels::matmul::decode_tensor_1d(model, &layer.attn_norm)?;
+    rms_norm_with_decoded_weight_into(&mut scratch.attn_norm, &norm_weight, hidden)?;
     let norm = scratch.attn_norm.as_slice();
     let norm_q8 = if layer.attn_q_a.tensor_type == 8 || layer.attn_kv.tensor_type == 8 {
         quantize_activation_q8_0_cached(norm)
@@ -432,7 +433,8 @@ fn project_q(
     if qr.len() != shape.n_lora_q {
         return None;
     }
-    rms_norm_with_decoded_weight_into(qr_norm_buf, &layer.attn_q_a_norm_data, qr)?;
+    let qr_norm_weight = crate::kernels::matmul::decode_tensor_1d(model, &layer.attn_q_a_norm)?;
+    rms_norm_with_decoded_weight_into(qr_norm_buf, &qr_norm_weight, qr)?;
     let qr_norm = qr_norm_buf.as_slice();
     let qr_norm_q8 = if layer.attn_q_b.tensor_type == 8 {
         quantize_activation_q8_0_cached(qr_norm)
@@ -477,7 +479,7 @@ fn project_kv(
     if kv_raw.len() != shape.n_head_dim {
         return None;
     }
-    rms_norm_with_decoded_weight(&layer.attn_kv_a_norm_data, &kv_raw)
+    rms_norm_with_decoded_weight(&crate::kernels::matmul::decode_tensor_1d(model, &layer.attn_kv_a_norm)?, &kv_raw)
 }
 
 fn grouped_output(
@@ -623,10 +625,10 @@ fn attention_rows_impl(
     kv_layer: &TransformerKvCacheLayerRef<'_>,
     shape: &Ds4ModelShape,
     layer: &BoundAttentionBlock,
-    _model: &GgufModel,
+    model: &GgufModel,
 ) -> Option<Vec<f32>> {
     let n_kv = kv_layer.len();
-    if layer.attn_sinks_data.len() != shape.n_head || n_kv == 0 {
+    if usize::try_from(*layer.attn_sinks.dims.first()?).unwrap_or(0) != shape.n_head || n_kv == 0 {
         return None;
     }
     let scale = 1.0f32 / (shape.n_head_dim as f32).sqrt();
@@ -635,7 +637,7 @@ fn attention_rows_impl(
 
     for h in 0..shape.n_head {
         let qh = &q[h * shape.n_head_dim..(h + 1) * shape.n_head_dim];
-        let mut max_score = layer.attn_sinks_data[h];
+        let mut max_score = crate::kernels::matmul::decode_tensor_1d(model, &layer.attn_sinks)?[h];
         let kv_dim = shape.n_head_dim;
         for r in 0..n_kv {
             let kv = kv_layer.key(r, kv_dim)?;
@@ -647,7 +649,7 @@ fn attention_rows_impl(
         }
 
         let oh = &mut out_heads[h * shape.n_head_dim..(h + 1) * shape.n_head_dim];
-        let mut denom = (layer.attn_sinks_data[h] - max_score).exp();
+        let mut denom = (crate::kernels::matmul::decode_tensor_1d(model, &layer.attn_sinks)?[h] - max_score).exp();
         for r in 0..n_kv {
             let kv = kv_layer.value(r, kv_dim)?;
             let weight = (scores[r] - max_score).exp();

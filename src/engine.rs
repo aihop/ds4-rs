@@ -109,7 +109,7 @@ pub struct Engine {
     pub(crate) model: Option<GgufModel>,
     pub(crate) tokenizer: Tokenizer,
     pub(crate) weights: Option<BoundWeights>,
-    pub(crate) metal_graph: std::sync::Mutex<Option<crate::kernels::metal_graph::MetalGraph>>,
+    pub(crate) metal_graph: std::sync::Mutex<Option<crate::kernels::metal::MetalGraph>>,
 }
 
 impl Engine {
@@ -122,11 +122,6 @@ impl Engine {
             ));
         }
 
-        if options.backend == Backend::Metal {
-            // ds4.h initializes Metal internally when we create ds4_engine
-            // We can rely on ds4_engine_open to do the initialization.
-        }
-
         let (model, tokenizer, weights) = if options.model_path.exists() {
             let model = load_model(&options.model_path)?;
             let tokenizer = Tokenizer::from_gguf(&model)?;
@@ -135,6 +130,27 @@ impl Engine {
         } else {
             (None, Tokenizer::preview(), None)
         };
+
+        if options.backend == Backend::Metal {
+            if let Some(model) = &model {
+                unsafe {
+                    let ok = crate::ffi::ds4_gpu_init();
+                    if ok == 0 {
+                        eprintln!("ds4-rs: ds4_gpu_init failed");
+                    }
+                    let map_ok = crate::ffi::ds4_gpu_set_model_map_range(
+                        model.model_map_ptr(),
+                        model.file_size,
+                        model.tensor_data_pos,
+                        model.file_size - model.tensor_data_pos,
+                    );
+                    if map_ok == 0 {
+                        eprintln!("ds4-rs: ds4_gpu_set_model_map_range failed");
+                    }
+                }
+            }
+        }
+
         Ok(Arc::new(Self {
             options,
             model,

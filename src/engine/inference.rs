@@ -20,12 +20,16 @@ impl Engine {
 
     pub(crate) fn try_reference_prefill(
         &self,
-        _kv_cache: &mut TransformerKvCache,
-        _scratch: &mut crate::kernels::decode_scratch::DecodeScratch,
-        _tokens: &[i32],
-        _start_pos: usize,
+        kv_cache: &mut TransformerKvCache,
+        scratch: &mut crate::kernels::decode_scratch::DecodeScratch,
+        tokens: &[i32],
+        start_pos: usize,
     ) -> Option<Vec<f32>> {
-        None
+        let mut last_logits = None;
+        for (i, &token) in tokens.iter().enumerate() {
+            last_logits = self.try_reference_decode_next(kv_cache, scratch, token, start_pos + i);
+        }
+        last_logits
     }
 
     fn try_infer_logits_from_weights(&self, _tokens: &Tokens) -> Option<Vec<f32>> {
@@ -42,32 +46,48 @@ impl Engine {
         let model = self.model.as_ref()?;
         let weights = self.weights.as_ref()?;
         
+        // CPU decode path
+        if self.options.backend == crate::engine::Backend::Cpu {
+            if let Some(logits) = crate::kernels::attention::try_decode_next_logits_from_blocks(
+                model,
+                weights,
+                _kv_cache,
+                _scratch,
+                token,
+                pos,
+            ) {
+                return Some(logits);
+            }
+        }
+
         if self.options.backend == crate::engine::Backend::Metal {
             let mut graph_guard = self.metal_graph.lock().unwrap();
             if graph_guard.is_none() {
                 // Initialize the metal graph
-                *graph_guard = Some(crate::kernels::metal_graph::MetalGraph::new(1, 7168, 4));
+                *graph_guard = Some(crate::kernels::metal::MetalGraph::new(1, 7168, 4));
             }
             if let Some(graph) = graph_guard.as_mut() {
                 let success = graph.execute_decode_step(model, weights, token, pos);
                 if success {
                     // For now, return stub logits to satisfy the Rust type signature
                     let mut logits = vec![0.0f32; 131072];
-                    // SAFETY: `logits` is allocated with `131072` f32 elements (131072 * 4 bytes).
-                    // `graph.logits` points to a valid GPU tensor.
-                    // `ds4_gpu_tensor_read` copies up to `131072 * 4` bytes from the GPU tensor into `logits`.
                     unsafe {
-                        crate::ffi::ds4_gpu_tensor_read(
+                        let read_ok = crate::ffi::ds4_gpu_tensor_read(
                             graph.logits,
                             0,
                             logits.as_mut_ptr() as *mut std::ffi::c_void,
-                            (131072 * 4) as u64,
+                            (129280 * 4) as u64, // Change to 129280
                         );
+                        if read_ok == 0 {
+                            eprintln!("ds4-rs: ds4_gpu_tensor_read failed!");
+                        }
                     }
-                    // For now, the Metal graph is just a stub and `execute_decode_step` doesn't compute logits.
-                    // We must return None so that the engine falls back to `stub_infer_logits`.
-                    // Otherwise, the all-zero logits will cause token 0 (`<unk>`) to be predicted forever ("?").
-                    return None;
+                    // Print top 5 logits to see if they are 0.0 or NaN
+                    let mut indexed_logits: Vec<(usize, f32)> = logits.iter().enumerate().map(|(i, &v)| (i, v)).collect();
+                    indexed_logits.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                    eprintln!("ds4-rs: Top 5 logits: {:?}", &indexed_logits[0..5]);
+                    
+                    return Some(logits);
                 }
             }
         }

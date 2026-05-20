@@ -1,0 +1,1807 @@
+   Compiling ds4-rust v0.1.0 (/Users/hugh/ai/ds4-rs)
+warning: unused import: `crate::gguf::GgufModel`
+ --> src/kernels/metal/graph.rs:2:5
+  |
+2 | use crate::gguf::GgufModel;
+  |     ^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `crate::weights::BoundWeights`
+ --> src/kernels/metal/graph.rs:3:5
+  |
+3 | use crate::weights::BoundWeights;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::ffi::c_void`
+ --> src/kernels/metal/graph.rs:4:5
+  |
+4 | use std::ffi::c_void;
+  |     ^^^^^^^^^^^^^^^^
+
+warning: unnecessary parentheses around assigned value
+   --> src/kernels/metal/decode.rs:163:24
+    |
+163 | ...ups = (crate::kernels::ds4_constants::DS4_N_OUT_GROUP as u32);
+    |          ^                                                     ^
+    |
+    = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+    |
+163 -         let n_groups = (crate::kernels::ds4_constants::DS4_N_OUT_GROUP as u32);
+163 +         let n_groups = crate::kernels::ds4_constants::DS4_N_OUT_GROUP as u32 ;
+    |
+
+warning: unnecessary parentheses around assigned value
+   --> src/kernels/metal/decode.rs:166:20
+    |
+166 |         let rank = (crate::kernels::ds4_constants::DS4_N_LORA_O as u32);
+    |                    ^                                                  ^
+    |
+help: remove these parentheses
+    |
+166 -         let rank = (crate::kernels::ds4_constants::DS4_N_LORA_O as u32);
+166 +         let rank = crate::kernels::ds4_constants::DS4_N_LORA_O as u32 ;
+    |
+
+warning: unnecessary parentheses around assigned value
+   --> src/kernels/metal/decode.rs:167:26
+    |
+167 |         let shared_dim = (layer_ffn.ffn_gate_shexp.dims[1] as u32);
+    |                          ^                                       ^
+    |
+help: remove these parentheses
+    |
+167 -         let shared_dim = (layer_ffn.ffn_gate_shexp.dims[1] as u32);
+167 +         let shared_dim = layer_ffn.ffn_gate_shexp.dims[1] as u32 ;
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:192:17
+    |
+192 |                 (hc_dim as u32),
+    |                 ^             ^
+    |
+help: remove these parentheses
+    |
+192 -                 (hc_dim as u32),
+192 +                 hc_dim as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:193:17
+    |
+193 |                 (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+    |                 ^                                                 ^
+    |
+help: remove these parentheses
+    |
+193 -                 (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+193 +                 crate::kernels::ds4_constants::DS4_RMS_EPS as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:221:17
+    |
+221 |                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+    |                 ^                                                ^
+    |
+help: remove these parentheses
+    |
+221 -                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+221 +                 crate::kernels::ds4_constants::DS4_N_EMBD as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:222:17
+    |
+222 |                 (crate::kernels::ds4_constants::DS4_N_HC as u32),
+    |                 ^                                              ^
+    |
+help: remove these parentheses
+    |
+222 -                 (crate::kernels::ds4_constants::DS4_N_HC as u32),
+222 +                 crate::kernels::ds4_constants::DS4_N_HC as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:223:17
+    |
+223 | ...   (crate::kernels::ds4_constants::DS4_N_HC_SINKHORN_ITER as u32),
+    |       ^                                                            ^
+    |
+help: remove these parentheses
+    |
+223 -                 (crate::kernels::ds4_constants::DS4_N_HC_SINKHORN_ITER as u32),
+223 +                 crate::kernels::ds4_constants::DS4_N_HC_SINKHORN_ITER as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:224:17
+    |
+224 |                 (crate::kernels::ds4_constants::DS4_HC_EPS as f32),
+    |                 ^                                                ^
+    |
+help: remove these parentheses
+    |
+224 -                 (crate::kernels::ds4_constants::DS4_HC_EPS as f32),
+224 +                 crate::kernels::ds4_constants::DS4_HC_EPS as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:225:17
+    |
+225 |                 (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+    |                 ^                                                 ^
+    |
+help: remove these parentheses
+    |
+225 -                 (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+225 +                 crate::kernels::ds4_constants::DS4_RMS_EPS as f32 ,
+    |
+
+warning: unnecessary trailing semicolon
+   --> src/kernels/metal/decode.rs:236:15
+    |
+236 |             */;
+    |               ^ help: remove this semicolon
+    |
+    = note: `#[warn(redundant_semicolons)]` (part of `#[warn(unused)]`) on by default
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:246:17
+    |
+246 |                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+    |                 ^                                                ^
+    |
+help: remove these parentheses
+    |
+246 -                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+246 +                 crate::kernels::ds4_constants::DS4_N_EMBD as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:247:17
+    |
+247 |                 (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+    |                 ^                                                 ^
+    |
+help: remove these parentheses
+    |
+247 -                 (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+247 +                 crate::kernels::ds4_constants::DS4_RMS_EPS as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:257:17
+    |
+257 |                 (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+    |                 ^                                                ^
+    |
+help: remove these parentheses
+    |
+257 -                 (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+257 +                 crate::kernels::ds4_constants::DS4_N_EMBD as u64 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:271:21
+    |
+271 |                     (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+    |                     ^                                                ^
+    |
+help: remove these parentheses
+    |
+271 -                     (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+271 +                     crate::kernels::ds4_constants::DS4_N_EMBD as u64 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:272:21
+    |
+272 | ...   (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u64),
+    |       ^                                                    ^
+    |
+help: remove these parentheses
+    |
+272 -                     (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u64),
+272 +                     crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u64 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:285:21
+    |
+285 |                     (q_rank as u32),
+    |                     ^             ^
+    |
+help: remove these parentheses
+    |
+285 -                     (q_rank as u32),
+285 +                     q_rank as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:289:21
+    |
+289 | ...   (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+    |       ^                                                    ^
+    |
+help: remove these parentheses
+    |
+289 -                     (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+289 +                     crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:291:21
+    |
+291 |                     (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+    |                     ^                                                 ^
+    |
+help: remove these parentheses
+    |
+291 -                     (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+291 +                     crate::kernels::ds4_constants::DS4_RMS_EPS as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:302:21
+    |
+302 |                     (q_rank as u32),
+    |                     ^             ^
+    |
+help: remove these parentheses
+    |
+302 -                     (q_rank as u32),
+302 +                     q_rank as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:303:21
+    |
+303 |                     (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+    |                     ^                                                 ^
+    |
+help: remove these parentheses
+    |
+303 -                     (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+303 +                     crate::kernels::ds4_constants::DS4_RMS_EPS as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:325:17
+    |
+325 |                 (crate::kernels::ds4_constants::DS4_N_HEAD as u32),
+    |                 ^                                                ^
+    |
+help: remove these parentheses
+    |
+325 -                 (crate::kernels::ds4_constants::DS4_N_HEAD as u32),
+325 +                 crate::kernels::ds4_constants::DS4_N_HEAD as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:326:17
+    |
+326 |                 (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+    |                 ^                                                    ^
+    |
+help: remove these parentheses
+    |
+326 -                 (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+326 +                 crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:327:17
+    |
+327 |                 (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+    |                 ^                                                 ^
+    |
+help: remove these parentheses
+    |
+327 -                 (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+327 +                 crate::kernels::ds4_constants::DS4_RMS_EPS as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:335:17
+    |
+335 |                 (crate::kernels::ds4_constants::DS4_N_HEAD as u32),
+    |                 ^                                                ^
+    |
+help: remove these parentheses
+    |
+335 -                 (crate::kernels::ds4_constants::DS4_N_HEAD as u32),
+335 +                 crate::kernels::ds4_constants::DS4_N_HEAD as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:336:17
+    |
+336 |                 (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+    |                 ^                                                    ^
+    |
+help: remove these parentheses
+    |
+336 -                 (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+336 +                 crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:337:17
+    |
+337 |                 (crate::kernels::ds4_constants::DS4_N_ROT as u32),
+    |                 ^                                               ^
+    |
+help: remove these parentheses
+    |
+337 -                 (crate::kernels::ds4_constants::DS4_N_ROT as u32),
+337 +                 crate::kernels::ds4_constants::DS4_N_ROT as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:338:17
+    |
+338 |                 ((pos as u32) as u32),
+    |                 ^                   ^
+    |
+help: remove these parentheses
+    |
+338 -                 ((pos as u32) as u32),
+338 +                 (pos as u32) as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:349:17
+    |
+349 | ...   (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32),
+    |       ^                                                             ^
+    |
+help: remove these parentheses
+    |
+349 -                 (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32),
+349 +                 crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:350:17
+    |
+350 | ...   (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32),
+    |       ^                                                             ^
+    |
+help: remove these parentheses
+    |
+350 -                 (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32),
+350 +                 crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:361:21
+    |
+361 |                     (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+    |                     ^                                                ^
+    |
+help: remove these parentheses
+    |
+361 -                     (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+361 +                     crate::kernels::ds4_constants::DS4_N_EMBD as u64 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:362:21
+    |
+362 | ...   (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u64),
+    |       ^                                                    ^
+    |
+help: remove these parentheses
+    |
+362 -                     (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u64),
+362 +                     crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u64 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:375:21
+    |
+375 | ...   (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+    |       ^                                                    ^
+    |
+help: remove these parentheses
+    |
+375 -                     (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+375 +                     crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:376:21
+    |
+376 |                     (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+    |                     ^                                                 ^
+    |
+help: remove these parentheses
+    |
+376 -                     (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+376 +                     crate::kernels::ds4_constants::DS4_RMS_EPS as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:384:17
+    |
+384 |                 (crate::kernels::ds4_constants::DS4_N_HEAD_KV as u32),
+    |                 ^                                                   ^
+    |
+help: remove these parentheses
+    |
+384 -                 (crate::kernels::ds4_constants::DS4_N_HEAD_KV as u32),
+384 +                 crate::kernels::ds4_constants::DS4_N_HEAD_KV as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:385:17
+    |
+385 |                 (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+    |                 ^                                                    ^
+    |
+help: remove these parentheses
+    |
+385 -                 (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+385 +                 crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:386:17
+    |
+386 |                 (crate::kernels::ds4_constants::DS4_N_ROT as u32),
+    |                 ^                                               ^
+    |
+help: remove these parentheses
+    |
+386 -                 (crate::kernels::ds4_constants::DS4_N_ROT as u32),
+386 +                 crate::kernels::ds4_constants::DS4_N_ROT as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:387:17
+    |
+387 |                 ((pos as u32) as u32),
+    |                 ^                   ^
+    |
+help: remove these parentheses
+    |
+387 -                 ((pos as u32) as u32),
+387 +                 (pos as u32) as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:398:17
+    |
+398 | ...   (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32),
+    |       ^                                                             ^
+    |
+help: remove these parentheses
+    |
+398 -                 (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32),
+398 +                 crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:399:17
+    |
+399 | ...   (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32),
+    |       ^                                                             ^
+    |
+help: remove these parentheses
+    |
+399 -                 (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32),
+399 +                 crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32 ,
+    |
+
+warning: unnecessary parentheses around `if` condition
+   --> src/kernels/metal/decode.rs:444:16
+    |
+444 |             if (ok && !false) {
+    |                ^            ^
+    |
+help: remove these parentheses
+    |
+444 -             if (ok && !false) {
+444 +             if ok && !false  {
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:452:21
+    |
+452 |                     (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+    |                     ^                                                ^
+    |
+help: remove these parentheses
+    |
+452 -                     (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+452 +                     crate::kernels::ds4_constants::DS4_N_EMBD as u64 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:501:21
+    |
+501 | ...   (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+    |       ^                                                    ^
+    |
+help: remove these parentheses
+    |
+501 -                     (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+501 +                     crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:502:21
+    |
+502 |                     (ratio as u32),
+    |                     ^            ^
+    |
+help: remove these parentheses
+    |
+502 -                     (ratio as u32),
+502 +                     ratio as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:503:21
+    |
+503 |                     ((pos as u32) as u32),
+    |                     ^                   ^
+    |
+help: remove these parentheses
+    |
+503 -                     ((pos as u32) as u32),
+503 +                     (pos as u32) as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:505:21
+    |
+505 |                     (crate::kernels::ds4_constants::DS4_N_ROT as u32),
+    |                     ^                                               ^
+    |
+help: remove these parentheses
+    |
+505 -                     (crate::kernels::ds4_constants::DS4_N_ROT as u32),
+505 +                     crate::kernels::ds4_constants::DS4_N_ROT as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:515:21
+    |
+515 | ...   (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32),
+    |       ^                                                             ^
+    |
+help: remove these parentheses
+    |
+515 -                     (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32),
+515 +                     crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:516:21
+    |
+516 | ...   (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32),
+    |       ^                                                             ^
+    |
+help: remove these parentheses
+    |
+516 -                     (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32),
+516 +                     crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:517:21
+    |
+517 |                     (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+    |                     ^                                                 ^
+    |
+help: remove these parentheses
+    |
+517 -                     (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+517 +                     crate::kernels::ds4_constants::DS4_RMS_EPS as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:532:25
+    |
+532 | ...   (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+    |       ^                                                    ^
+    |
+help: remove these parentheses
+    |
+532 -                         (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+532 +                         crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:533:25
+    |
+533 |                         (crate::kernels::ds4_constants::DS4_N_ROT as u32),
+    |                         ^                                               ^
+    |
+help: remove these parentheses
+    |
+533 -                         (crate::kernels::ds4_constants::DS4_N_ROT as u32),
+533 +                         crate::kernels::ds4_constants::DS4_N_ROT as u32 ,
+    |
+
+warning: unnecessary parentheses around `if` condition
+   --> src/kernels/metal/decode.rs:573:20
+    |
+573 |                 if (ok && !false) {
+    |                    ^            ^
+    |
+help: remove these parentheses
+    |
+573 -                 if (ok && !false) {
+573 +                 if ok && !false  {
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:589:25
+    |
+589 | ...   (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+    |       ^                                                ^
+    |
+help: remove these parentheses
+    |
+589 -                         (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+589 +                         crate::kernels::ds4_constants::DS4_N_EMBD as u64 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:650:25
+    |
+650 | ...   (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32),
+    |       ^                                                            ^
+    |
+help: remove these parentheses
+    |
+650 -                         (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32),
+650 +                         crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:651:25
+    |
+651 |                         (ratio as u32),
+    |                         ^            ^
+    |
+help: remove these parentheses
+    |
+651 -                         (ratio as u32),
+651 +                         ratio as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:652:25
+    |
+652 |                         ((pos as u32) as u32),
+    |                         ^                   ^
+    |
+help: remove these parentheses
+    |
+652 -                         ((pos as u32) as u32),
+652 +                         (pos as u32) as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:654:25
+    |
+654 |                         (crate::kernels::ds4_constants::DS4_N_ROT as u32),
+    |                         ^                                               ^
+    |
+help: remove these parentheses
+    |
+654 -                         (crate::kernels::ds4_constants::DS4_N_ROT as u32),
+654 +                         crate::kernels::ds4_constants::DS4_N_ROT as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:664:25
+    |
+664 | ...   (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32),
+    |       ^                                                             ^
+    |
+help: remove these parentheses
+    |
+664 -                         (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32),
+664 +                         crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:665:25
+    |
+665 | ...   (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32),
+    |       ^                                                             ^
+    |
+help: remove these parentheses
+    |
+665 -                         (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32),
+665 +                         crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:666:25
+    |
+666 | ...   (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+    |       ^                                                 ^
+    |
+help: remove these parentheses
+    |
+666 -                         (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+666 +                         crate::kernels::ds4_constants::DS4_RMS_EPS as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:684:29
+    |
+684 | ...   (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32),
+    |       ^                                                            ^
+    |
+help: remove these parentheses
+    |
+684 -                             (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32),
+684 +                             crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around `if` condition
+   --> src/kernels/metal/decode.rs:703:24
+    |
+703 | ...if (ok
+    |       ^
+...
+710 | ...            != (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD as u64)))
+    |                                                                              ^
+    |
+help: remove these parentheses
+    |
+703 ~                     if ok
+704 |                         && (layer_attn.indexer_proj.is_none()
+...
+709 |                             || layer_attn.indexer_proj.as_ref().unwrap().dims[1]
+710 ~                                 != (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD as u64)) 
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:730:29
+    |
+730 | ...   (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD as u32),
+    |       ^                                                        ^
+    |
+help: remove these parentheses
+    |
+730 -                             (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD as u32),
+730 +                             crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:731:29
+    |
+731 | ...   (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32),
+    |       ^                                                            ^
+    |
+help: remove these parentheses
+    |
+731 -                             (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32),
+731 +                             crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:732:29
+    |
+732 | ...                   (crate::kernels::ds4_constants::DS4_N_ROT as u32),
+    |                       ^                                               ^
+    |
+help: remove these parentheses
+    |
+732 -                             (crate::kernels::ds4_constants::DS4_N_ROT as u32),
+732 +                             crate::kernels::ds4_constants::DS4_N_ROT as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:733:29
+    |
+733 | ...                   ((pos as u32) as u32),
+    |                       ^                   ^
+    |
+help: remove these parentheses
+    |
+733 -                             ((pos as u32) as u32),
+733 +                             (pos as u32) as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:744:29
+    |
+744 | ...   (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32),
+    |       ^                                                             ^
+    |
+help: remove these parentheses
+    |
+744 -                             (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32),
+744 +                             crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:745:29
+    |
+745 | ...   (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32),
+    |       ^                                                             ^
+    |
+help: remove these parentheses
+    |
+745 -                             (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32),
+745 +                             crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:751:29
+    |
+751 | ...   (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD as u32),
+    |       ^                                                        ^
+    |
+help: remove these parentheses
+    |
+751 -                             (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD as u32),
+751 +                             crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:752:29
+    |
+752 | ...   (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32),
+    |       ^                                                            ^
+    |
+help: remove these parentheses
+    |
+752 -                             (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32),
+752 +                             crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:782:29
+    |
+782 | ...   (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD as u32),
+    |       ^                                                        ^
+    |
+help: remove these parentheses
+    |
+782 -                             (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD as u32),
+782 +                             crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:783:29
+    |
+783 | ...   (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32),
+    |       ^                                                            ^
+    |
+help: remove these parentheses
+    |
+783 -                             (crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32),
+783 +                             crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:834:21
+    |
+834 |                     ((pos as u32) as u32),
+    |                     ^                   ^
+    |
+help: remove these parentheses
+    |
+834 -                     ((pos as u32) as u32),
+834 +                     (pos as u32) as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:842:21
+    |
+842 |                     (crate::kernels::ds4_constants::DS4_N_HEAD as u32),
+    |                     ^                                                ^
+    |
+help: remove these parentheses
+    |
+842 -                     (crate::kernels::ds4_constants::DS4_N_HEAD as u32),
+842 +                     crate::kernels::ds4_constants::DS4_N_HEAD as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:843:21
+    |
+843 | ...   (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+    |       ^                                                    ^
+    |
+help: remove these parentheses
+    |
+843 -                     (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+843 +                     crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:867:21
+    |
+867 |                     (crate::kernels::ds4_constants::DS4_N_HEAD as u32),
+    |                     ^                                                ^
+    |
+help: remove these parentheses
+    |
+867 -                     (crate::kernels::ds4_constants::DS4_N_HEAD as u32),
+867 +                     crate::kernels::ds4_constants::DS4_N_HEAD as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:868:21
+    |
+868 | ...   (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+    |       ^                                                    ^
+    |
+help: remove these parentheses
+    |
+868 -                     (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+868 +                     crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:877:17
+    |
+877 |                 (crate::kernels::ds4_constants::DS4_N_HEAD as u32),
+    |                 ^                                                ^
+    |
+help: remove these parentheses
+    |
+877 -                 (crate::kernels::ds4_constants::DS4_N_HEAD as u32),
+877 +                 crate::kernels::ds4_constants::DS4_N_HEAD as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:878:17
+    |
+878 |                 (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+    |                 ^                                                    ^
+    |
+help: remove these parentheses
+    |
+878 -                 (crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32),
+878 +                 crate::kernels::ds4_constants::DS4_N_HEAD_DIM as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:879:17
+    |
+879 |                 (crate::kernels::ds4_constants::DS4_N_ROT as u32),
+    |                 ^                                               ^
+    |
+help: remove these parentheses
+    |
+879 -                 (crate::kernels::ds4_constants::DS4_N_ROT as u32),
+879 +                 crate::kernels::ds4_constants::DS4_N_ROT as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:880:17
+    |
+880 |                 ((pos as u32) as u32),
+    |                 ^                   ^
+    |
+help: remove these parentheses
+    |
+880 -                 ((pos as u32) as u32),
+880 +                 (pos as u32) as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:891:17
+    |
+891 | ...   (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32),
+    |       ^                                                             ^
+    |
+help: remove these parentheses
+    |
+891 -                 (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32),
+891 +                 crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_FAST as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:892:17
+    |
+892 | ...   (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32),
+    |       ^                                                             ^
+    |
+help: remove these parentheses
+    |
+892 -                 (crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32),
+892 +                 crate::kernels::ds4_constants::DS4_ROPE_YARN_BETA_SLOW as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:903:17
+    |
+903 |                 (group_dim as u64),
+    |                 ^                ^
+    |
+help: remove these parentheses
+    |
+903 -                 (group_dim as u64),
+903 +                 group_dim as u64 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:904:17
+    |
+904 |                 (rank as u64),
+    |                 ^           ^
+    |
+help: remove these parentheses
+    |
+904 -                 (rank as u64),
+904 +                 rank as u64 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:905:17
+    |
+905 |                 (n_groups as u32),
+    |                 ^               ^
+    |
+help: remove these parentheses
+    |
+905 -                 (n_groups as u32),
+905 +                 n_groups as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:916:21
+    |
+916 |                     (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+    |                     ^                                                ^
+    |
+help: remove these parentheses
+    |
+916 -                     (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+916 +                     crate::kernels::ds4_constants::DS4_N_EMBD as u64 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:920:21
+    |
+920 |                     (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+    |                     ^                                                ^
+    |
+help: remove these parentheses
+    |
+920 -                     (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+920 +                     crate::kernels::ds4_constants::DS4_N_EMBD as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:921:21
+    |
+921 |                     (crate::kernels::ds4_constants::DS4_N_HC as u32),
+    |                     ^                                              ^
+    |
+help: remove these parentheses
+    |
+921 -                     (crate::kernels::ds4_constants::DS4_N_HC as u32),
+921 +                     crate::kernels::ds4_constants::DS4_N_HC as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:934:17
+    |
+934 |                 (group_dim as u64),
+    |                 ^                ^
+    |
+help: remove these parentheses
+    |
+934 -                 (group_dim as u64),
+934 +                 group_dim as u64 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:935:17
+    |
+935 |                 (rank as u64),
+    |                 ^           ^
+    |
+help: remove these parentheses
+    |
+935 -                 (rank as u64),
+935 +                 rank as u64 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:936:17
+    |
+936 |                 (n_groups as u32),
+    |                 ^               ^
+    |
+help: remove these parentheses
+    |
+936 -                 (n_groups as u32),
+936 +                 n_groups as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:937:17
+    |
+937 |                 (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+    |                 ^                                                ^
+    |
+help: remove these parentheses
+    |
+937 -                 (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+937 +                 crate::kernels::ds4_constants::DS4_N_EMBD as u64 ,
+    |
+
+warning: unnecessary parentheses around `if` condition
+   --> src/kernels/metal/decode.rs:943:12
+    |
+943 |         if (ok && false) {
+    |            ^           ^
+    |
+help: remove these parentheses
+    |
+943 -         if (ok && false) {
+943 +         if ok && false  {
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:953:17
+    |
+953 |                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+    |                 ^                                                ^
+    |
+help: remove these parentheses
+    |
+953 -                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+953 +                 crate::kernels::ds4_constants::DS4_N_EMBD as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:954:17
+    |
+954 |                 (crate::kernels::ds4_constants::DS4_N_HC as u32),
+    |                 ^                                              ^
+    |
+help: remove these parentheses
+    |
+954 -                 (crate::kernels::ds4_constants::DS4_N_HC as u32),
+954 +                 crate::kernels::ds4_constants::DS4_N_HC as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:962:17
+    |
+962 |                 (hc_dim as u32),
+    |                 ^             ^
+    |
+help: remove these parentheses
+    |
+962 -                 (hc_dim as u32),
+962 +                 hc_dim as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:963:17
+    |
+963 |                 (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+    |                 ^                                                 ^
+    |
+help: remove these parentheses
+    |
+963 -                 (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+963 +                 crate::kernels::ds4_constants::DS4_RMS_EPS as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:989:17
+    |
+989 |                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+    |                 ^                                                ^
+    |
+help: remove these parentheses
+    |
+989 -                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+989 +                 crate::kernels::ds4_constants::DS4_N_EMBD as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:990:17
+    |
+990 |                 (crate::kernels::ds4_constants::DS4_N_HC as u32),
+    |                 ^                                              ^
+    |
+help: remove these parentheses
+    |
+990 -                 (crate::kernels::ds4_constants::DS4_N_HC as u32),
+990 +                 crate::kernels::ds4_constants::DS4_N_HC as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:991:17
+    |
+991 | ...   (crate::kernels::ds4_constants::DS4_N_HC_SINKHORN_ITER as u32),
+    |       ^                                                            ^
+    |
+help: remove these parentheses
+    |
+991 -                 (crate::kernels::ds4_constants::DS4_N_HC_SINKHORN_ITER as u32),
+991 +                 crate::kernels::ds4_constants::DS4_N_HC_SINKHORN_ITER as u32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:992:17
+    |
+992 |                 (crate::kernels::ds4_constants::DS4_HC_EPS as f32),
+    |                 ^                                                ^
+    |
+help: remove these parentheses
+    |
+992 -                 (crate::kernels::ds4_constants::DS4_HC_EPS as f32),
+992 +                 crate::kernels::ds4_constants::DS4_HC_EPS as f32 ,
+    |
+
+warning: unnecessary parentheses around function argument
+   --> src/kernels/metal/decode.rs:993:17
+    |
+993 |                 (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+    |                 ^                                                 ^
+    |
+help: remove these parentheses
+    |
+993 -                 (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+993 +                 crate::kernels::ds4_constants::DS4_RMS_EPS as f32 ,
+    |
+
+warning: unnecessary trailing semicolon
+    --> src/kernels/metal/decode.rs:1004:15
+     |
+1004 |             */;
+     |               ^ help: remove this semicolon
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1014:17
+     |
+1014 |                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+     |                 ^                                                ^
+     |
+help: remove these parentheses
+     |
+1014 -                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+1014 +                 crate::kernels::ds4_constants::DS4_N_EMBD as u32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1015:17
+     |
+1015 |                 (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+     |                 ^                                                 ^
+     |
+help: remove these parentheses
+     |
+1015 -                 (crate::kernels::ds4_constants::DS4_RMS_EPS as f32),
+1015 +                 crate::kernels::ds4_constants::DS4_RMS_EPS as f32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1074:17
+     |
+1074 |                 (token as u32),
+     |                 ^            ^
+     |
+help: remove these parentheses
+     |
+1074 -                 (token as u32),
+1074 +                 token as u32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1106:17
+     |
+1106 |                 (expert_in_dim as u32),
+     |                 ^                    ^
+     |
+help: remove these parentheses
+     |
+1106 -                 (expert_in_dim as u32),
+1106 +                 expert_in_dim as u32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1107:17
+     |
+1107 |                 (down_in_dim as u32),
+     |                 ^                  ^
+     |
+help: remove these parentheses
+     |
+1107 -                 (down_in_dim as u32),
+1107 +                 down_in_dim as u32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1108:17
+     |
+1108 |                 (routed_out_dim as u32),
+     |                 ^                     ^
+     |
+help: remove these parentheses
+     |
+1108 -                 (routed_out_dim as u32),
+1108 +                 routed_out_dim as u32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1111:17
+     |
+1111 | ...   (crate::kernels::ds4_constants::DS4_N_EXPERT_USED as u32),
+     |       ^                                                       ^
+     |
+help: remove these parentheses
+     |
+1111 -                 (crate::kernels::ds4_constants::DS4_N_EXPERT_USED as u32),
+1111 +                 crate::kernels::ds4_constants::DS4_N_EXPERT_USED as u32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1112:17
+     |
+1112 | ...   (crate::kernels::ds4_constants::DS4_SWIGLU_CLAMP_EXP as f32),
+     |       ^                                                          ^
+     |
+help: remove these parentheses
+     |
+1112 -                 (crate::kernels::ds4_constants::DS4_SWIGLU_CLAMP_EXP as f32),
+1112 +                 crate::kernels::ds4_constants::DS4_SWIGLU_CLAMP_EXP as f32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1127:17
+     |
+1127 |                 (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+     |                 ^                                                ^
+     |
+help: remove these parentheses
+     |
+1127 -                 (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+1127 +                 crate::kernels::ds4_constants::DS4_N_EMBD as u64 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1128:17
+     |
+1128 |                 (shared_dim as u64),
+     |                 ^                 ^
+     |
+help: remove these parentheses
+     |
+1128 -                 (shared_dim as u64),
+1128 +                 shared_dim as u64 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1130:17
+     |
+1130 | ...   (crate::kernels::ds4_constants::DS4_SWIGLU_CLAMP_EXP as f32),
+     |       ^                                                          ^
+     |
+help: remove these parentheses
+     |
+1130 -                 (crate::kernels::ds4_constants::DS4_SWIGLU_CLAMP_EXP as f32),
+1130 +                 crate::kernels::ds4_constants::DS4_SWIGLU_CLAMP_EXP as f32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1139:21
+     |
+1139 |                     (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+     |                     ^                                                ^
+     |
+help: remove these parentheses
+     |
+1139 -                     (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+1139 +                     crate::kernels::ds4_constants::DS4_N_EMBD as u64 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1140:21
+     |
+1140 |                     (shared_dim as u64),
+     |                     ^                 ^
+     |
+help: remove these parentheses
+     |
+1140 -                     (shared_dim as u64),
+1140 +                     shared_dim as u64 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1151:21
+     |
+1151 |                     (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+     |                     ^                                                ^
+     |
+help: remove these parentheses
+     |
+1151 -                     (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+1151 +                     crate::kernels::ds4_constants::DS4_N_EMBD as u64 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1152:21
+     |
+1152 |                     (shared_dim as u64),
+     |                     ^                 ^
+     |
+help: remove these parentheses
+     |
+1152 -                     (shared_dim as u64),
+1152 +                     shared_dim as u64 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1163:21
+     |
+1163 | ...   (crate::kernels::ds4_constants::DS4_SWIGLU_CLAMP_EXP as f32),
+     |       ^                                                          ^
+     |
+help: remove these parentheses
+     |
+1163 -                     (crate::kernels::ds4_constants::DS4_SWIGLU_CLAMP_EXP as f32),
+1163 +                     crate::kernels::ds4_constants::DS4_SWIGLU_CLAMP_EXP as f32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1177:17
+     |
+1177 |                 (shared_dim as u64),
+     |                 ^                 ^
+     |
+help: remove these parentheses
+     |
+1177 -                 (shared_dim as u64),
+1177 +                 shared_dim as u64 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1178:17
+     |
+1178 |                 (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+     |                 ^                                                ^
+     |
+help: remove these parentheses
+     |
+1178 -                 (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+1178 +                 crate::kernels::ds4_constants::DS4_N_EMBD as u64 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1183:17
+     |
+1183 |                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+     |                 ^                                                ^
+     |
+help: remove these parentheses
+     |
+1183 -                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+1183 +                 crate::kernels::ds4_constants::DS4_N_EMBD as u32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1184:17
+     |
+1184 |                 (crate::kernels::ds4_constants::DS4_N_HC as u32),
+     |                 ^                                              ^
+     |
+help: remove these parentheses
+     |
+1184 -                 (crate::kernels::ds4_constants::DS4_N_HC as u32),
+1184 +                 crate::kernels::ds4_constants::DS4_N_HC as u32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1192:17
+     |
+1192 |                 (shared_dim as u64),
+     |                 ^                 ^
+     |
+help: remove these parentheses
+     |
+1192 -                 (shared_dim as u64),
+1192 +                 shared_dim as u64 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1193:17
+     |
+1193 |                 (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+     |                 ^                                                ^
+     |
+help: remove these parentheses
+     |
+1193 -                 (crate::kernels::ds4_constants::DS4_N_EMBD as u64),
+1193 +                 crate::kernels::ds4_constants::DS4_N_EMBD as u64 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1205:21
+     |
+1205 |                     (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+     |                     ^                                                ^
+     |
+help: remove these parentheses
+     |
+1205 -                     (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+1205 +                     crate::kernels::ds4_constants::DS4_N_EMBD as u32 ,
+     |
+
+warning: unnecessary parentheses around `if` condition
+    --> src/kernels/metal/decode.rs:1209:12
+     |
+1209 |         if (ok && false) {
+     |            ^           ^
+     |
+help: remove these parentheses
+     |
+1209 -         if (ok && false) {
+1209 +         if ok && false  {
+     |
+
+warning: unnecessary parentheses around `if` condition
+    --> src/kernels/metal/decode.rs:1212:12
+     |
+1212 |         if (ok && false) {
+     |            ^           ^
+     |
+help: remove these parentheses
+     |
+1212 -         if (ok && false) {
+1212 +         if ok && false  {
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1219:17
+     |
+1219 |                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+     |                 ^                                                ^
+     |
+help: remove these parentheses
+     |
+1219 -                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+1219 +                 crate::kernels::ds4_constants::DS4_N_EMBD as u32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1220:17
+     |
+1220 |                 (crate::kernels::ds4_constants::DS4_N_HC as u32),
+     |                 ^                                              ^
+     |
+help: remove these parentheses
+     |
+1220 -                 (crate::kernels::ds4_constants::DS4_N_HC as u32),
+1220 +                 crate::kernels::ds4_constants::DS4_N_HC as u32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1229:17
+     |
+1229 |                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+     |                 ^                                                ^
+     |
+help: remove these parentheses
+     |
+1229 -                 (crate::kernels::ds4_constants::DS4_N_EMBD as u32),
+1229 +                 crate::kernels::ds4_constants::DS4_N_EMBD as u32 ,
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/kernels/metal/decode.rs:1230:17
+     |
+1230 |                 (crate::kernels::ds4_constants::DS4_N_HC as u32),
+     |                 ^                                              ^
+     |
+help: remove these parentheses
+     |
+1230 -                 (crate::kernels::ds4_constants::DS4_N_HC as u32),
+1230 +                 crate::kernels::ds4_constants::DS4_N_HC as u32 ,
+     |
+
+warning: variable does not need to be mutable
+  --> src/kernels/metal/decode.rs:58:17
+   |
+58 | ...   let mut ok = self.encode_token_raw_swa(model, weights, token, pos,...
+   |           ----^^
+   |           |
+   |           help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+   --> src/kernels/metal/decode.rs:414:13
+    |
+414 |         let mut decode_index_stage_t0 = 0.0;
+    |             ----^^^^^^^^^^^^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> src/kernels/metal/decode.rs:521:21
+    |
+521 | ...   let mut comp_row_view: *mut crate::ffi::ds4_gpu_tensor = crate::f...
+    |           ----^^^^^^^^^^^^^
+    |           |
+    |           help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> src/kernels/metal/decode.rs:670:25
+    |
+670 | ...   let mut index_row_view = crate::ffi::ds4_gpu_tensor_view(
+    |           ----^^^^^^^^^^^^^^
+    |           |
+    |           help: remove this `mut`
+
+warning: unused variable: `raw_row`
+   --> src/kernels/metal/decode.rs:149:9
+    |
+149 |         raw_row: u32,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_raw_row`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `decode_index_stage_t0`
+   --> src/kernels/metal/decode.rs:414:13
+    |
+414 |         let mut decode_index_stage_t0 = 0.0;
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_decode_index_stage_t0`
+
+warning: constant `HC_LAYER_MAJOR_PREFILL_MIN_TOKENS` is never used
+  --> src/kernels/attention.rs:23:7
+   |
+23 | const HC_LAYER_MAJOR_PREFILL_MIN_TOKENS: usize = 256;
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `try_infer_logits_from_blocks` is never used
+  --> src/kernels/attention.rs:25:15
+   |
+25 | pub(crate) fn try_infer_logits_from_blocks(
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `try_prefill_logits_from_blocks` is never used
+  --> src/kernels/attention.rs:49:15
+   |
+49 | pub(crate) fn try_prefill_logits_from_blocks(
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `forward_tokens_through_blocks_hc_layer_major` is never used
+   --> src/kernels/attention.rs:238:4
+    |
+238 | fn forward_tokens_through_blocks_hc_layer_major(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `debug_attention_event` is never used
+   --> src/kernels/attention.rs:301:4
+    |
+301 | fn debug_attention_event(hypothesis_id: &str, location: &str, msg: &str...
+    |    ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `debug_json_string` is never used
+   --> src/kernels/attention.rs:330:4
+    |
+330 | fn debug_json_string(value: &str) -> String {
+    |    ^^^^^^^^^^^^^^^^^
+
+warning: function `decode_tensor_2d` is never used
+  --> src/kernels/matmul.rs:53:15
+   |
+53 | pub(crate) fn decode_tensor_2d(model: &GgufModel, tensor: &BoundTensor) ...
+   |               ^^^^^^^^^^^^^^^^
+
+warning: function `iq2_signed_grid_value` is never used
+   --> src/kernels/quant.rs:399:4
+    |
+399 | fn iq2_signed_grid_value(grid_idx: u8, sign_idx: u8, elem: usize) -> i8 {
+    |    ^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `DS4_N_LAYER` is never used
+ --> src/kernels/ds4_constants.rs:1:11
+  |
+1 | pub const DS4_N_LAYER: usize = 43;
+  |           ^^^^^^^^^^^
+
+warning: constant `DS4_N_VOCAB` is never used
+ --> src/kernels/ds4_constants.rs:3:11
+  |
+3 | pub const DS4_N_VOCAB: usize = 129280;
+  |           ^^^^^^^^^^^
+
+warning: constant `DS4_N_VALUE_DIM` is never used
+ --> src/kernels/ds4_constants.rs:7:11
+  |
+7 | pub const DS4_N_VALUE_DIM: usize = 512;
+  |           ^^^^^^^^^^^^^^^
+
+warning: constant `DS4_N_LORA_Q` is never used
+  --> src/kernels/ds4_constants.rs:10:11
+   |
+10 | pub const DS4_N_LORA_Q: usize = 1024;
+   |           ^^^^^^^^^^^^
+
+warning: constant `DS4_N_EXPERT_SHARED` is never used
+  --> src/kernels/ds4_constants.rs:14:11
+   |
+14 | pub const DS4_N_EXPERT_SHARED: usize = 1;
+   |           ^^^^^^^^^^^^^^^^^^^
+
+warning: constant `DS4_N_FF_EXP` is never used
+  --> src/kernels/ds4_constants.rs:15:11
+   |
+15 | pub const DS4_N_FF_EXP: usize = 2048;
+   |           ^^^^^^^^^^^^
+
+warning: constant `DS4_N_HASH_LAYER` is never used
+  --> src/kernels/ds4_constants.rs:16:11
+   |
+16 | pub const DS4_N_HASH_LAYER: usize = 3;
+   |           ^^^^^^^^^^^^^^^^
+
+warning: constant `DS4_N_INDEXER_TOP_K` is never used
+  --> src/kernels/ds4_constants.rs:20:11
+   |
+20 | pub const DS4_N_INDEXER_TOP_K: usize = 512;
+   |           ^^^^^^^^^^^^^^^^^^^
+
+warning: method `try_infer_logits_from_weights` is never used
+  --> src/engine/inference.rs:35:8
+   |
+ 6 | impl Engine {
+   | ----------- method in this implementation
+...
+35 |     fn try_infer_logits_from_weights(&self, _tokens: &Tokens) -> Option<...
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `debug_engine_event` is never used
+   --> src/engine/inference.rs:149:4
+    |
+149 | fn debug_engine_event(hypothesis_id: &str, location: &str, msg: &str, d...
+    |    ^^^^^^^^^^^^^^^^^^
+
+warning: function `debug_json_string` is never used
+   --> src/engine/inference.rs:207:4
+    |
+207 | fn debug_json_string(value: &str) -> String {
+    |    ^^^^^^^^^^^^^^^^^
+
+warning: function `decode_tensor_1d_or_zeros` is never used
+   --> src/weights.rs:224:4
+    |
+224 | fn decode_tensor_1d_or_zeros(_model: &GgufModel, tensor: &BoundTensor) ...
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `decode_tensor_2d_or_zeros` is never used
+   --> src/weights.rs:233:4
+    |
+233 | fn decode_tensor_2d_or_zeros(_model: &GgufModel, tensor: &BoundTensor) ...
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `decode_tensor_i32_2d` is never used
+   --> src/weights.rs:247:4
+    |
+247 | fn decode_tensor_i32_2d(model: &GgufModel, tensor: &BoundTensor) -> Opt...
+    |    ^^^^^^^^^^^^^^^^^^^^
+
+warning: `ds4-rust` (lib) generated 164 warnings (run `cargo fix --lib -p ds4-rust` to apply 140 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.41s
+     Running `target/debug/ds4-server`
+ds4: Metal device Apple M5 Max, 128.00 GiB RAM
+ds4: Metal model views created in 2.335 ms, residency requested in 5376.968 ms, warmup 9.957 ms (mapped 82697.67 MiB from offset 5.08 MiB)
+ds4: Metal mapped mmaped model as 2 overlapping shared buffers
+ds4-rust engine model=/Users/hugh/ai/ds4-rs/ds4flash.gguf backend=metal threads=8 gguf=v3 arch=deepseek4 tensors=1328 kv=58 tensor_data_pos=5333536 vocab=129280 tokenizer=real
+ds4-rust server listening on http://127.0.0.1:8080

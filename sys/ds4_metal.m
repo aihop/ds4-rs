@@ -4459,6 +4459,8 @@ static id<MTLBuffer> ds4_gpu_wrap_model_range(
         }
         const uint64_t view_start = g_model_views[i].model_offset;
         const uint64_t view_end = view_start + g_model_views[i].bytes;
+        fprintf(stderr, "ds4-debug: view %d bounds: %.2f..%.2f GiB (offset=%.2f, end=%.2f)\n", 
+                i, ds4_gpu_gib(view_start), ds4_gpu_gib(view_end), ds4_gpu_gib(offset), ds4_gpu_gib(end));
         if (offset >= view_start && end <= view_end) {
             *inner_offset = offset - view_start;
             return g_model_views[i].buffer;

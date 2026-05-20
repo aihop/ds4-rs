@@ -1,125 +1,42 @@
-use crate::ffi::*;
-use crate::gguf::GgufModel;
+use crate::GgufModel;
 use crate::weights::BoundWeights;
-use std::ffi::c_void;
-
-/// A wrapper representing a Metal computation graph for inference.
-pub struct MetalGraph {
-    pub batch_cur_hc: *mut ds4_gpu_tensor,
-    pub batch_next_hc: *mut ds4_gpu_tensor,
-    pub batch_flat_hc: *mut ds4_gpu_tensor,
-    pub batch_hc_mix: *mut ds4_gpu_tensor,
-    pub batch_hc_split: *mut ds4_gpu_tensor,
-    pub batch_attn_cur: *mut ds4_gpu_tensor,
-    pub batch_attn_norm: *mut ds4_gpu_tensor,
-    pub batch_qr: *mut ds4_gpu_tensor,
-    pub batch_qr_norm: *mut ds4_gpu_tensor,
-    pub batch_q: *mut ds4_gpu_tensor,
-    pub batch_kv_raw: *mut ds4_gpu_tensor,
-    pub batch_kv: *mut ds4_gpu_tensor,
-    pub batch_heads: *mut ds4_gpu_tensor,
-    pub batch_attn_low: *mut ds4_gpu_tensor,
-    pub batch_attn_out: *mut ds4_gpu_tensor,
-    pub batch_group_tmp: *mut ds4_gpu_tensor,
-    pub batch_low_tmp: *mut ds4_gpu_tensor,
-    pub batch_after_attn_hc: *mut ds4_gpu_tensor,
-    pub batch_ffn_cur: *mut ds4_gpu_tensor,
-    pub batch_ffn_norm: *mut ds4_gpu_tensor,
-    pub batch_shared_gate: *mut ds4_gpu_tensor,
-    pub batch_shared_up: *mut ds4_gpu_tensor,
-    pub batch_shared_mid: *mut ds4_gpu_tensor,
-    pub batch_shared_out: *mut ds4_gpu_tensor,
-    pub batch_router_logits: *mut ds4_gpu_tensor,
-    pub batch_router_probs: *mut ds4_gpu_tensor,
-    pub batch_router_selected: *mut ds4_gpu_tensor,
-    pub batch_router_weights: *mut ds4_gpu_tensor,
-    pub batch_routed_gate: *mut ds4_gpu_tensor,
-    pub batch_routed_up: *mut ds4_gpu_tensor,
-    pub batch_routed_mid: *mut ds4_gpu_tensor,
-    pub batch_routed_down: *mut ds4_gpu_tensor,
-    pub batch_routed_out: *mut ds4_gpu_tensor,
-    pub batch_ffn_out: *mut ds4_gpu_tensor,
-    pub logits: *mut ds4_gpu_tensor,
-    pub tokens: *mut ds4_gpu_tensor,
-    pub batch_layer_n_index_comp: [u32; 61],
-    pub batch_layer_n_comp: [u32; 61],
-    pub batch_layer_comp_cap: [u32; 61],
-    pub batch_layer_attn_comp_cache: [*mut ds4_gpu_tensor; 61],
-    pub batch_comp_kv_cur: *mut ds4_gpu_tensor,
-    pub batch_comp_sc_cur: *mut ds4_gpu_tensor,
-    pub batch_layer_index_state_kv: [*mut ds4_gpu_tensor; 61],
-    pub batch_layer_index_state_score: [*mut ds4_gpu_tensor; 61],
-    pub batch_indexer_q: *mut ds4_gpu_tensor,
-    pub batch_indexer_scores: *mut ds4_gpu_tensor,
-    pub batch_indexer_weights: *mut ds4_gpu_tensor,
-    pub batch_layer_index_comp_cache: [*mut ds4_gpu_tensor; 61],
-    pub batch_comp_selected: *mut ds4_gpu_tensor,
-    pub batch_raw_window: u32,
-    pub router_selected: *mut ds4_gpu_tensor,
-    pub router_weights: *mut ds4_gpu_tensor,
-    pub router_probs: *mut ds4_gpu_tensor,
-    pub router_logits: *mut ds4_gpu_tensor,
-    pub routed_out: *mut ds4_gpu_tensor,
-    pub routed_gate: *mut ds4_gpu_tensor,
-    pub routed_up: *mut ds4_gpu_tensor,
-    pub routed_mid: *mut ds4_gpu_tensor,
-    pub routed_down: *mut ds4_gpu_tensor,
-    pub ffn_norm: *mut ds4_gpu_tensor,
-    pub quality: bool,
-    pub shared_gate: *mut ds4_gpu_tensor,
-    pub shared_up: *mut ds4_gpu_tensor,
-    pub shared_mid: *mut ds4_gpu_tensor,
-    pub shared_out: *mut ds4_gpu_tensor,
-    pub ffn_out: *mut ds4_gpu_tensor,
-    pub after_ffn_hc: *mut ds4_gpu_tensor,
-    pub batch_hc_post: *mut ds4_gpu_tensor,
-    pub batch_hc_comb: *mut ds4_gpu_tensor,    pub qr: *mut ds4_gpu_tensor,    pub kv: *mut ds4_gpu_tensor,    pub kv_raw: *mut ds4_gpu_tensor,    pub qr_norm: *mut ds4_gpu_tensor,    pub layer_attn_state_kv: [*mut ds4_gpu_tensor; 61],    pub layer_attn_state_score: [*mut ds4_gpu_tensor; 61],
-}
+use super::graph::MetalGraph;
 
 impl MetalGraph {
-    /// Creates a new `MetalGraph` and allocates necessary GPU memory buffers.
-    pub fn new(prefill_cap: usize, n_embd: usize, n_hc: usize) -> Self {
-        // SAFETY: `ds4_gpu_tensor_alloc` is called with correctly calculated byte sizes.
-        // It returns valid pointers to GPU memory, which are safely encapsulated within `MetalGraph`.
-        unsafe {
-            let mut res: Self = std::mem::zeroed();
-            res.batch_cur_hc = ds4_gpu_tensor_alloc((prefill_cap * n_hc * n_embd * 4) as u64);
-            res.batch_next_hc = ds4_gpu_tensor_alloc((prefill_cap * n_hc * n_embd * 4) as u64);
-            res.batch_flat_hc = ds4_gpu_tensor_alloc((prefill_cap * n_embd * 4) as u64);
-            res.batch_hc_mix = ds4_gpu_tensor_alloc((prefill_cap * (n_hc * 2 + n_hc * n_hc) * 4) as u64);
-            res.batch_hc_split = ds4_gpu_tensor_alloc((prefill_cap * (n_hc * 2 + n_hc * n_hc) * 4) as u64);
-            res.batch_attn_cur = ds4_gpu_tensor_alloc((prefill_cap * n_embd * 4) as u64);
-            res.batch_attn_norm = ds4_gpu_tensor_alloc((prefill_cap * n_embd * 4) as u64);
-            res.batch_qr = ds4_gpu_tensor_alloc((prefill_cap * 1536 * 4) as u64);
-            res.batch_qr_norm = ds4_gpu_tensor_alloc((prefill_cap * 1536 * 4) as u64);
-            res.batch_q = ds4_gpu_tensor_alloc((prefill_cap * 16384 * 4) as u64);
-            res.batch_kv_raw = ds4_gpu_tensor_alloc((prefill_cap * 512 * 4) as u64);
-            res.batch_kv = ds4_gpu_tensor_alloc((prefill_cap * 512 * 4) as u64);
-            res.batch_heads = ds4_gpu_tensor_alloc((prefill_cap * 16384 * 4) as u64);
-            res.batch_attn_low = ds4_gpu_tensor_alloc((prefill_cap * 1536 * 4) as u64);
-            res.batch_attn_out = ds4_gpu_tensor_alloc((prefill_cap * n_embd * 4) as u64);
-            res.batch_group_tmp = ds4_gpu_tensor_alloc((prefill_cap * 1536 * 4) as u64);
-            res.batch_low_tmp = ds4_gpu_tensor_alloc((prefill_cap * 1536 * 4) as u64);
-            res.batch_after_attn_hc = ds4_gpu_tensor_alloc((prefill_cap * n_embd * 4) as u64);
-            res.batch_ffn_cur = ds4_gpu_tensor_alloc((prefill_cap * n_embd * 4) as u64);
-            res.batch_ffn_norm = ds4_gpu_tensor_alloc((prefill_cap * n_embd * 4) as u64);
-            res.batch_shared_gate = ds4_gpu_tensor_alloc((prefill_cap * 2048 * 4) as u64);
-            res.batch_shared_up = ds4_gpu_tensor_alloc((prefill_cap * 2048 * 4) as u64);
-            res.batch_shared_mid = ds4_gpu_tensor_alloc((prefill_cap * 2048 * 4) as u64);
-            res.batch_shared_out = ds4_gpu_tensor_alloc((prefill_cap * n_embd * 4) as u64);
-            res.batch_router_logits = ds4_gpu_tensor_alloc((prefill_cap * 256 * 4) as u64);
-            res.batch_router_probs = ds4_gpu_tensor_alloc((prefill_cap * 256 * 4) as u64);
-            res.batch_router_selected = ds4_gpu_tensor_alloc((prefill_cap * 8 * 4) as u64);
-            res.batch_router_weights = ds4_gpu_tensor_alloc((prefill_cap * 8 * 4) as u64);
-            res.batch_routed_gate = ds4_gpu_tensor_alloc((prefill_cap * 8 * 2048 * 4) as u64);
-            res.batch_routed_up = ds4_gpu_tensor_alloc((prefill_cap * 8 * 2048 * 4) as u64);
-            res.batch_routed_mid = ds4_gpu_tensor_alloc((prefill_cap * 8 * 2048 * 4) as u64);
-            res.batch_routed_down = ds4_gpu_tensor_alloc((prefill_cap * 8 * n_embd * 4) as u64);
-            res.batch_routed_out = ds4_gpu_tensor_alloc((prefill_cap * n_embd * 4) as u64);
-            res.batch_ffn_out = ds4_gpu_tensor_alloc((prefill_cap * n_embd * 4) as u64);
-            res.logits = ds4_gpu_tensor_alloc((1 * 131072 * 4) as u64);
-            res.tokens = ds4_gpu_tensor_alloc((prefill_cap * 4) as u64);
-            res
+
+    pub unsafe fn metal_graph_matmul_plain_tensor(
+        out: *mut crate::ffi::ds4_gpu_tensor,
+        model: &crate::GgufModel,
+        w: &crate::weights::BoundTensor,
+        in_dim: u64,
+        out_dim: u64,
+        x: *mut crate::ffi::ds4_gpu_tensor,
+        n_tok: u64,
+    ) -> bool {
+        if w.tensor_type == 1 {
+            crate::ffi::ds4_gpu_matmul_f16_tensor(
+                out,
+                model.model_map_ptr(),
+                model.file_size,
+                w.abs_offset,
+                in_dim,
+                out_dim,
+                x,
+                n_tok,
+            ) != 0
+        } else if w.tensor_type == 0 {
+            crate::ffi::ds4_gpu_matmul_f32_tensor(
+                out,
+                model.model_map_ptr(),
+                model.file_size,
+                w.abs_offset,
+                in_dim,
+                out_dim,
+                x,
+                n_tok,
+            ) != 0
+        } else {
+            false
         }
     }
 
@@ -127,31 +44,99 @@ impl MetalGraph {
     /// Returns `true` if the commands were successfully dispatched.
     pub fn execute_decode_step(
         &mut self,
-        _model: &GgufModel,
-        _weights: &BoundWeights,
+        model: &GgufModel,
+        weights: &BoundWeights,
         token: i32,
-        _pos: usize,
+        pos: usize,
     ) -> bool {
-        // SAFETY: FFI calls to `ds4_gpu_*` are used to encode GPU commands.
-        // `token_data` is a valid local array, and its pointer is safely written to the GPU tensor.
         unsafe {
-            if ds4_gpu_begin_commands() == 0 {
+            if crate::ffi::ds4_gpu_begin_commands() == 0 {
                 return false;
             }
 
-            // Upload token
-            let token_data = [token];
-            ds4_gpu_tensor_write(self.tokens, 0, token_data.as_ptr() as *const c_void, 4);
+            // Execute the single token inference loop
+            let mut ok = self.encode_token_raw_swa(model, weights, token, pos, true);
 
-            // We use ds4_gpu_* APIs to encode the computation graph
-            // Since writing 3000 lines of FFI calls layer by layer takes time,
-            // here we simulate the structure.
-            // The full implementation of `encode_layer_batch` goes here.
-
-            ds4_gpu_end_commands();
-            ds4_gpu_synchronize();
-            true
+            crate::ffi::ds4_gpu_end_commands();
+            crate::ffi::ds4_gpu_synchronize();
+            ok
         }
+    }
+
+    pub unsafe fn encode_token_raw_swa(
+        &mut self,
+        model: &GgufModel,
+        weights: &BoundWeights,
+        token: i32,
+        pos: usize,
+        need_logits: bool,
+    ) -> bool {
+        if self.raw_cap == 0 {
+            return false;
+        }
+        let raw_row = (pos as u32) % self.raw_cap;
+        
+        let window = if self.batch_raw_window != 0 { self.batch_raw_window } else { crate::kernels::ds4_constants::DS4_N_SWA as u32 };
+        let mut needed = 1_u64;
+        if window > 0 {
+            needed += (window as u64) - 1;
+        }
+        let available = (pos as u64) + 1;
+        if needed > available {
+            needed = available;
+        }
+        if needed > (self.raw_cap as u64) {
+            needed = self.raw_cap as u64;
+        }
+        let n_raw = needed as u32;
+
+        let mut ok = crate::ffi::ds4_gpu_embed_token_hc_tensor(
+                self.batch_cur_hc,
+                model.model_map_ptr(),
+                model.file_size,
+                weights.token_embd.abs_offset,
+                weights.token_embd.dims[1] as u32,
+                token as u32,
+                crate::kernels::ds4_constants::DS4_N_EMBD as u32,
+                crate::kernels::ds4_constants::DS4_N_HC as u32,
+            ) != 0;
+            
+            if !ok {
+                eprintln!("ds4-rs: ds4_gpu_embed_token_hc_tensor failed");
+            }
+
+            for il in 0..61 {
+                if !ok {
+                    eprintln!("ds4-rs: loop broken at layer {}", il);
+                    break;
+                }
+                ok = self.encode_decode_layer(
+                    model,
+                    weights,
+                    il,
+                    pos,
+                    self.layer_raw_cache[il],
+                    self.raw_cap,
+                    raw_row,
+                    n_raw,
+                    token,
+                );
+                if !ok {
+                    eprintln!("ds4-rs: encode_decode_layer failed at layer {}", il);
+                }
+                
+                let tmp = self.batch_cur_hc;
+                self.batch_cur_hc = self.after_ffn_hc;
+                self.after_ffn_hc = tmp;
+            }
+
+            if ok && need_logits {
+                ok = self.encode_output_head(model, weights, weights.output.dims[1] as u64);
+                if !ok {
+                    eprintln!("ds4-rs: encode_output_head failed");
+                }
+            }
+        ok
     }
     pub unsafe fn encode_decode_layer(
         &mut self,
@@ -209,7 +194,15 @@ impl MetalGraph {
             ) != 0;
         }
         if ok {
-            ok = true; // FIXME: ds4_gpu_matmul_f16_tensor manually patched
+            ok = Self::metal_graph_matmul_plain_tensor(
+                self.batch_hc_mix,
+                model,
+                layer_attn.hc_attn_fn.as_ref().unwrap(),
+                hc_dim as u64,
+                mix_hc as u64,
+                self.batch_flat_hc,
+                1,
+            );
         }
         let fuse_hc_norm =
             true && true;
@@ -463,10 +456,28 @@ impl MetalGraph {
                 ) != 0;
             } else {
                 if ok {
-                    ok = true; // FIXME: ds4_gpu_matmul_f16_tensor manually patched
+                    ok = crate::ffi::ds4_gpu_matmul_f16_tensor(
+                        self.batch_comp_kv_cur,
+                        model.model_map_ptr(),
+                        model.file_size,
+                        layer_attn.attn_compressor_kv.as_ref().unwrap().abs_offset,
+                        crate::kernels::ds4_constants::DS4_N_EMBD as u64,
+                        comp_width,
+                        self.batch_attn_norm,
+                        1,
+                    ) != 0;
                 }
                 if ok {
-                    ok = true; // FIXME: ds4_gpu_matmul_f16_tensor manually patched
+                    ok = crate::ffi::ds4_gpu_matmul_f16_tensor(
+                        self.batch_comp_sc_cur,
+                        model.model_map_ptr(),
+                        model.file_size,
+                        layer_attn.attn_compressor_gate.as_ref().unwrap().abs_offset,
+                        crate::kernels::ds4_constants::DS4_N_EMBD as u64,
+                        comp_width,
+                        self.batch_attn_norm,
+                        1,
+                    ) != 0;
                 }
             }
             let comp_row = self.batch_layer_n_comp[il];
@@ -582,11 +593,29 @@ impl MetalGraph {
                     ) != 0;
                 } else {
                     if ok {
-                        ok = true; // FIXME: ds4_gpu_matmul_f16_tensor manually patched
-                    }
-                    if ok {
-                        ok = true; // FIXME: ds4_gpu_matmul_f16_tensor manually patched
-                    }
+                    ok = crate::ffi::ds4_gpu_matmul_f16_tensor(
+                        self.batch_comp_kv_cur,
+                        model.model_map_ptr(),
+                        model.file_size,
+                        layer_attn.indexer_compressor_kv.as_ref().unwrap().abs_offset,
+                        crate::kernels::ds4_constants::DS4_N_EMBD as u64,
+                        index_width as u64,
+                        self.batch_attn_norm,
+                        1,
+                    ) != 0;
+                }
+                if ok {
+                    ok = crate::ffi::ds4_gpu_matmul_f16_tensor(
+                        self.batch_comp_sc_cur,
+                        model.model_map_ptr(),
+                        model.file_size,
+                        layer_attn.indexer_compressor_gate.as_ref().unwrap().abs_offset,
+                        crate::kernels::ds4_constants::DS4_N_EMBD as u64,
+                        index_width as u64,
+                        self.batch_attn_norm,
+                        1,
+                    ) != 0;
+                }
                 }
                 let index_row = self.batch_layer_n_index_comp[il];
                 if ok {
@@ -683,7 +712,16 @@ impl MetalGraph {
                         ok = false;
                     }
                     if ok {
-                        ok = true; // FIXME: ds4_gpu_matmul_f16_tensor manually patched
+                        ok = crate::ffi::ds4_gpu_matmul_f16_tensor(
+                            self.batch_indexer_q,
+                            model.model_map_ptr(),
+                            model.file_size,
+                            layer_attn.indexer_attn_q_b.as_ref().unwrap().abs_offset,
+                            q_rank,
+                            indexer_q_dim,
+                            self.qr_norm,
+                            1,
+                        ) != 0;
                     }
                     if ok {
                         ok = crate::ffi::ds4_gpu_rope_tail_tensor(
@@ -715,7 +753,16 @@ impl MetalGraph {
                         ) != 0;
                     }
                     if ok {
-                        ok = true; // FIXME: ds4_gpu_matmul_f16_tensor manually patched
+                        ok = crate::ffi::ds4_gpu_matmul_f16_tensor(
+                            self.batch_indexer_weights,
+                            model.model_map_ptr(),
+                            model.file_size,
+                            layer_attn.indexer_proj.as_ref().unwrap().abs_offset,
+                            crate::kernels::ds4_constants::DS4_N_EMBD as u64,
+                            crate::kernels::ds4_constants::DS4_N_INDEXER_HEAD as u64,
+                            self.batch_attn_norm,
+                            1,
+                        ) != 0;
                     }
                     let index_scale = 1.0
                         / (
@@ -917,7 +964,15 @@ impl MetalGraph {
             ) != 0;
         }
         if ok {
-            ok = true; // FIXME: ds4_gpu_matmul_f16_tensor manually patched
+            ok = Self::metal_graph_matmul_plain_tensor(
+                self.batch_hc_mix,
+                model,
+                layer_ffn.hc_ffn_fn.as_ref().unwrap(),
+                hc_dim as u64,
+                mix_hc as u64,
+                self.batch_flat_hc,
+                1,
+            );
         }
         if ok && fuse_hc_norm {
             ok = crate::ffi::ds4_gpu_hc_split_weighted_sum_norm_tensor(
@@ -966,7 +1021,15 @@ impl MetalGraph {
         let down_row_bytes = 0;
         let down_expert_bytes = routed_out_dim * down_row_bytes;
         if ok {
-            ok = true; // FIXME: ds4_gpu_matmul_f16_tensor manually patched
+            ok = Self::metal_graph_matmul_plain_tensor(
+                self.router_logits,
+                model,
+                &layer_ffn.ffn_gate_inp,
+                crate::kernels::ds4_constants::DS4_N_EMBD as u64,
+                crate::kernels::ds4_constants::DS4_N_EXPERT as u64,
+                self.ffn_norm,
+                1,
+            );
         }
         if ok {
             ok = crate::ffi::ds4_gpu_router_select_tensor(
@@ -1102,7 +1165,7 @@ impl MetalGraph {
                 ) != 0;
             }
         }
-        let keep_ffn_out = true;
+        let keep_ffn_out = false;
         let fuse_shared_down_hc = !keep_ffn_out && true;
         if ok && fuse_shared_down_hc {
             ok = crate::ffi::ds4_gpu_shared_down_hc_expand_q8_0_tensor(
@@ -1171,53 +1234,3 @@ impl MetalGraph {
         return ok;
     }
 }
-
-impl Drop for MetalGraph {
-    fn drop(&mut self) {
-        // SAFETY: All `ds4_gpu_tensor_free` calls receive valid pointers previously allocated via `ds4_gpu_tensor_alloc`.
-        // This is called exactly once when `MetalGraph` is dropped, preventing double-free.
-        unsafe {
-            ds4_gpu_tensor_free(self.batch_cur_hc);
-            ds4_gpu_tensor_free(self.batch_next_hc);
-            ds4_gpu_tensor_free(self.batch_flat_hc);
-            ds4_gpu_tensor_free(self.batch_hc_mix);
-            ds4_gpu_tensor_free(self.batch_hc_split);
-            ds4_gpu_tensor_free(self.batch_attn_cur);
-            ds4_gpu_tensor_free(self.batch_attn_norm);
-            ds4_gpu_tensor_free(self.batch_qr);
-            ds4_gpu_tensor_free(self.batch_qr_norm);
-            ds4_gpu_tensor_free(self.batch_q);
-            ds4_gpu_tensor_free(self.batch_kv_raw);
-            ds4_gpu_tensor_free(self.batch_kv);
-            ds4_gpu_tensor_free(self.batch_heads);
-            ds4_gpu_tensor_free(self.batch_attn_low);
-            ds4_gpu_tensor_free(self.batch_attn_out);
-            ds4_gpu_tensor_free(self.batch_group_tmp);
-            ds4_gpu_tensor_free(self.batch_low_tmp);
-            ds4_gpu_tensor_free(self.batch_after_attn_hc);
-            ds4_gpu_tensor_free(self.batch_ffn_cur);
-            ds4_gpu_tensor_free(self.batch_ffn_norm);
-            ds4_gpu_tensor_free(self.batch_shared_gate);
-            ds4_gpu_tensor_free(self.batch_shared_up);
-            ds4_gpu_tensor_free(self.batch_shared_mid);
-            ds4_gpu_tensor_free(self.batch_shared_out);
-            ds4_gpu_tensor_free(self.batch_router_logits);
-            ds4_gpu_tensor_free(self.batch_router_probs);
-            ds4_gpu_tensor_free(self.batch_router_selected);
-            ds4_gpu_tensor_free(self.batch_router_weights);
-            ds4_gpu_tensor_free(self.batch_routed_gate);
-            ds4_gpu_tensor_free(self.batch_routed_up);
-            ds4_gpu_tensor_free(self.batch_routed_mid);
-            ds4_gpu_tensor_free(self.batch_routed_down);
-            ds4_gpu_tensor_free(self.batch_routed_out);
-            ds4_gpu_tensor_free(self.batch_ffn_out);
-            ds4_gpu_tensor_free(self.logits);
-            ds4_gpu_tensor_free(self.tokens);
-        }
-    }
-}
-// SAFETY: `MetalGraph` only holds pointers to GPU memory which can be safely sent across threads.
-// FFI functions that interact with these tensors must be thread-safe or externally synchronized.
-unsafe impl Send for MetalGraph {}
-// SAFETY: Methods accessing the pointers require `&mut self` or external synchronization.
-unsafe impl Sync for MetalGraph {}

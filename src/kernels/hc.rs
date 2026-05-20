@@ -251,7 +251,7 @@ pub(crate) fn output_hc_head(
     let output_hc_scale = weights.output_hc_scale.as_ref()?;
     let output_hc_base = weights.output_hc_base.as_ref()?;
     let norm_scale = rms_norm_scale_no_weight(inp_hc)?;
-    let pre = match weights.output_hc_fn_data.as_deref() {
+    let pre = match None {
         Some(data) => {
             let width = usize::try_from(*output_hc_fn.dims.first()?).ok()?;
             let rows = usize::try_from(*output_hc_fn.dims.get(1)?).ok()?;
@@ -271,18 +271,18 @@ pub(crate) fn output_hc_head(
             pre
         }
     };
-    let scale_owned = if weights.output_hc_scale_data.is_none() {
+    let scale_owned = if true {
         decode_tensor_1d(model, output_hc_scale)
     } else {
         None
     };
-    let scale = weights.output_hc_scale_data.as_deref().or(scale_owned.as_deref())?;
-    let base_owned = if weights.output_hc_base_data.is_none() {
+    let scale = scale_owned.as_deref()?;
+    let base_owned = if true {
         decode_tensor_1d(model, output_hc_base)
     } else {
         None
     };
-    let base = weights.output_hc_base_data.as_deref().or(base_owned.as_deref())?;
+    let base = base_owned.as_deref()?;
     if base.len() != DS4_N_HC || scale.is_empty() {
         return None;
     }
